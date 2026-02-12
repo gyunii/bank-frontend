@@ -5,6 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import logoutIcon from '../images/AdminMain/logout.png';
 import pwIcon from '../images/AdminMain/pw.png';
 import navIcon from '../images/AdminMain/icon.png';
+import adminIcon from '../images/AdminMain/admin.png';
 import UserManagement from '../components/Admin/UserManagement.jsx';
 
 const AdminMain = () => {
@@ -72,6 +73,7 @@ const AdminMain = () => {
             <div className={styles.content}>
                 <header className={styles.header}>
                     <div className={styles.welcomeMsg}>
+                        <img src={adminIcon} alt="관리자 아이콘" className={styles.adminIcon} />
                         최고관리자님 반갑습니다.
                     </div>
                 </header>

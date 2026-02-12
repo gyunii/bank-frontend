@@ -1,18 +1,31 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import styles from './UserMangement.module.css';
 import AdminModal from './AdminModal.jsx';
 
 const UserManagement = () => {
-    // 예시 데이터
-    const [users, setUsers] = useState([
-        { id: 1, name: '노구', email: 'superadmin@bank.com', role: '최고관리자', dept: '대표 이사', joinDate: '2020.01.15', lastLogin: '5분 전', status: '활성' },
-        { id: 2, name: '김갑수', email: 'admin@bank.com', role: '관리자', dept: '관리팀', joinDate: '2021.03.20', lastLogin: '1시간 전', status: '활성' },
-        { id: 3, name: '박명수', email: 'park@bank.com', role: '사원', dept: '관리팀', joinDate: '2022.06.10', lastLogin: '30분 전', status: '비활성' },
-        { id: 4, name: '침착맨', email: 'chim@bank.com', role: '사원', dept: '상품팀', joinDate: '2023.01.05', lastLogin: '2시간 전', status: '비활성' },
-    ]);
-
+    const [users, setUsers] = useState([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedUser, setSelectedUser] = useState(null);
+
+    // 멤버 목록 조회 함수
+    const fetchMembers = async () => {
+        try {
+            const response = await fetch('/api/user/members');
+            if (response.ok) {
+                const data = await response.json();
+                setUsers(data);
+            } else {
+                console.error('Failed to fetch members');
+            }
+        } catch (error) {
+            console.error('Error fetching members:', error);
+        }
+    };
+
+    // 컴포넌트 마운트 시 멤버 목록 조회
+    useEffect(() => {
+        fetchMembers();
+    }, []);
 
     const handleAddClick = () => {
         setSelectedUser(null);
@@ -29,26 +42,74 @@ const UserManagement = () => {
         setSelectedUser(null);
     };
 
-    const handleSaveUser = (userData) => {
-        if (selectedUser) {
-            // 수정 로직
-            setUsers(users.map(u => u.id === selectedUser.id ? { ...u, ...userData } : u));
-        } else {
-            // 추가 로직
-            const newUser = {
-                id: users.length + 1,
-                ...userData,
-                joinDate: new Date().toISOString().split('T')[0].replace(/-/g, '.'),
-                lastLogin: '-',
-            };
-            setUsers([...users, newUser]);
+    const handleSaveUser = async (userData) => {
+        // 백엔드 API 요구사항에 맞춰 데이터 변환
+        const memberData = {
+            name: userData.name,
+            email: userData.email,
+            password: userData.password,
+            level: userData.level,
+            auth: userData.auth,
+            team: userData.team,
+            status: userData.status, // Integer 그대로 전송
+        };
+
+        try {
+            let response;
+            if (selectedUser) {
+                // 수정 모드: PATCH 요청
+                response = await fetch('/api/user/member', {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(memberData),
+                });
+            } else {
+                // 등록 모드: POST 요청
+                response = await fetch('/api/user/member', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(memberData),
+                });
+            }
+
+            if (response.ok) {
+                const result = await response.json();
+                if (result.result === 'SUCCESS') {
+                    alert(selectedUser ? '멤버 수정 성공!' : '멤버 등록 성공!');
+                    fetchMembers(); // 목록 갱신
+                } else {
+                    alert(selectedUser ? '멤버 수정 실패' : '멤버 등록 실패');
+                }
+            } else {
+                alert('서버 오류 발생');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('오류가 발생했습니다.');
         }
+
         handleCloseModal();
+    };
+
+    // 레벨 표시 헬퍼 함수
+    const getLevelLabel = (level) => {
+        switch (level) {
+            case 1: return 'Lv.1 (신입/서포터)';
+            case 2: return 'Lv.2 (일반 행원)';
+            case 3: return 'Lv.3 (대리/과장)';
+            case 4: return 'Lv.4 (차장/팀장)';
+            case 5: return 'Lv.5 (지점장급)';
+            default: return level;
+        }
     };
 
     return (
         <div className={styles.userContainer}>
-            <h2 className={styles.title}>사용자 관리</h2>
+            <h2 className={styles.title}>임직원 관리</h2>
 
             <div className={styles.topBar}>
                 <div className={styles.searchWrapper}>
@@ -57,8 +118,9 @@ const UserManagement = () => {
                 </div>
                 <div className={styles.actionBtns}>
                     <select className={styles.roleSelect}>
-                        <option>관리자</option>
-                        <option>사원</option>
+                        <option>전체</option>
+                        <option>활성</option>
+                        <option>비활성</option>
                     </select>
                     <button className={styles.deleteBtn}>- 삭제</button>
                     <button className={styles.addBtn} onClick={handleAddClick}>+ 추가</button>
@@ -70,6 +132,7 @@ const UserManagement = () => {
                 <tr>
                     <th>이름</th>
                     <th>이메일</th>
+                    <th>직급</th>
                     <th>권한</th>
                     <th>소속</th>
                     <th>입사일</th>
@@ -79,42 +142,40 @@ const UserManagement = () => {
                 </tr>
                 </thead>
                 <tbody>
-                {users.map((user) => (
-                    <tr key={user.id}>
-                        <td>{user.name}</td>
-                        <td>{user.email}</td>
-                        <td>
-                            {user.role === '최고관리자' ? (
-                                user.role
-                            ) : (
-                                <select className={styles.inlineSelect} defaultValue={user.role}>
-                                    <option>관리자</option>
-                                    <option>사원</option>
-                                </select>
-                            )}
-                        </td>
-                        <td>{user.dept}</td>
-                        <td>{user.joinDate}</td>
-                        <td>{user.lastLogin}</td>
-                        <td>
-                                <span className={`${styles.statusBadge} ${user.status === '활성' ? styles.active : styles.inactive}`}>
-                                    {user.status === '활성' ? '활성화' : '비 활성화'}
-                                </span>
-                        </td>
-                        <td>
-                            {user.role !== '최고관리자' && (
-                                <button className={styles.editBtn} onClick={() => handleEditClick(user)}>📝 수정</button>
-                            )}
+                {users.length === 0 ? (
+                    <tr>
+                        <td colSpan="9" style={{ textAlign: 'center', padding: '50px', color: '#888' }}>
+                            등록된 임직원이 없습니다.
                         </td>
                     </tr>
-                ))}
+                ) : (
+                    users.map((user) => (
+                        <tr key={user.id}>
+                            <td>{user.name}</td>
+                            <td>{user.email}</td>
+                            <td>{getLevelLabel(user.level)}</td>
+                            <td>{user.auth}</td>
+                            <td>{user.team}</td>
+                            <td>{user.joinDate}</td>
+                            <td>{user.lastLogin ? new Date(user.lastLogin).toLocaleString() : '-'}</td>
+                            <td>
+                                    <span className={`${styles.statusBadge} ${user.status === 1 ? styles.active : styles.inactive}`}>
+                                        {user.status === 1 ? '활성' : '비활성'}
+                                    </span>
+                            </td>
+                            <td>
+                                <button className={styles.editBtn} onClick={() => handleEditClick(user)}>📝 수정</button>
+                            </td>
+                        </tr>
+                    ))
+                )}
                 </tbody>
             </table>
 
             <AdminModal 
                 isOpen={isModalOpen} 
                 onClose={handleCloseModal} 
-                onSave={handleSaveUser} 
+                onSave={handleSaveUser}
                 user={selectedUser}
             />
         </div>

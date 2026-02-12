@@ -1,104 +1,217 @@
-.loginContainer {
-    max-width: 400px;
-    margin: 0 auto;
-    padding: 20px;
+/* 전체 화면 컨테이너 */
+.pageContainer {
+    position: relative; /* fixed -> relative 변경 */
+    width: 100%;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
 }
 
-.loginContainer h2 {
-    text-align: center;
-    margin-bottom: 1rem;
-    color: #333;
-    font-weight: 900;
+/* 배경 이미지 */
+.backgroundWrapper {
+    position: fixed;  /* 중요: absolute -> fixed로 변경 (스크롤해도 고정) */
+    top: 0;
+    left: 0;
+    width: 100vw;     /* 중요: % 대신 vw (뷰포트 너비) 사용 */
+    height: 130vh;    /* 중요: % 대신 vh (뷰포트 높이) 사용 */
+    z-index: 3;       /* 제일 뒤에 배치 */
+    overflow: hidden; /* 넘치는 부분 자름 */
+
 }
-.loginContainer h1 {
+
+.backgroundWrapper img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover ;
+    filter: brightness(0.6);
+
+}
+
+/* 로그인 카드 (중앙 박스) */
+.loginCard {
+    display: flex;
+    width: 900px;
+    height: 640px;
+    background-color: transparent; /* 배경 투명하게 */
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.1);
+    z-index: 10;
+    margin-top: -50px; /* 마진을 음수로 주어 위로 올림 */
+}
+
+/* 왼쪽 이미지 영역 (50%) */
+.leftPane {
+    flex: 1;
+    background-color: #e0f2f1;
+    position: relative;
+    overflow: hidden;
+}
+
+.leftPane img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+/* 오른쪽 폼 영역 (50%) */
+.rightPane {
+    flex: 1;
+    padding: 40px 50px; /* 내부 여백 확보 */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    color: #ffffff;
+    /* 고급스러운 다크 그라데이션 */
+    background: linear-gradient(135deg, #1f2329 0%, #0d0d0d 100%);
+}
+
+.header {
+    margin-bottom: 25px;
     text-align: center;
-    margin-bottom: 3rem;
+}
+
+.header h1 {
     color: #009A83;
+    font-size: 2.2rem;
+    font-weight: 800;
+    margin: 0;
+    letter-spacing: -0.5px;
 }
 
+/* 폼 스타일 */
 .form {
     display: flex;
     flex-direction: column;
+
 }
 
 .inputGroup {
-    margin-bottom: 15px;
+    margin-bottom: 18px; /* 입력창 사이 간격 */
 }
 
 .inputGroup label {
     display: block;
-    margin-bottom: 5px;
+    margin-bottom: 8px;
+    font-size: 0.95rem;
+    color: #cccccc;
     font-weight: 500;
-    color: #555;
-    text-align: left;
-    padding-left: 1rem;
-    font-size: 1.3rem;
 }
 
 .inputGroup input {
     width: 100%;
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    box-sizing: border-box;
+    padding: 14px;
+    border: 1px solid #333;
+    border-radius: 8px;
     font-size: 1rem;
-    outline: none; /* 기본 outline 제거 */
-}
-.inputGroup input:focus {
-    border: 1px solid #009A83; /* 색상 코드 수정 및 !important 제거 */
-    box-shadow: 0 0 0 2px rgba(0, 154, 131, 0.2); /* 선택 사항: 포커스 시 그림자 효과 추가 */
+    background-color: #2b303b; /* 입력창 배경색 (눈부심 방지) */
+    color: #ffffff;
+    outline: none;
+    transition: all 0.3s ease;
 }
 
+.inputGroup input::placeholder {
+    color: #666;
+}
+
+.inputGroup input:focus {
+    border-color: #009A83;
+    background-color: #333842;
+    box-shadow: 0 0 0 2px rgba(0, 154, 131, 0.3);
+}
+
+/* 체크박스 영역 */
 .checkboxGroup {
     display: flex;
     align-items: center;
-    margin-bottom: 15px;
-
+    margin-top: 5px;
+    margin-bottom: 25px;
 }
 
 .checkboxGroup input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
     margin-right: 10px;
-    width: 1.2rem;
-    height: 1.2rem;
+    accent-color: #009A83;
     cursor: pointer;
-    accent-color: #009A83; /* 체크박스 색상 변경 (최신 브라우저 지원) */
 }
 
 .checkboxGroup label {
-    font-size: 1rem;
-    color: #555;
+    font-size: 0.9rem;
+    color: #aaaaaa;
     cursor: pointer;
 }
 
+/* 로그인 버튼 */
 .submitButton {
-    padding: 12px;
+    width: 100%;
+    padding: 16px;
     background-color: #009A83;
     color: white;
+    font-size: 1.1rem;
+    font-weight: 700;
     border: none;
-    border-radius: 4px;
-    font-size: 1.3rem;
+    border-radius: 8px;
     cursor: pointer;
-    transition: background-color 0.3s;
-    margin:1rem 0;
+    transition: background-color 0.3s, transform 0.1s;
+
 }
 
 .submitButton:hover {
-    background-color: #027c6b;
+    background-color: #007c69;
 }
 
-.registerLink {
-    margin-top: 20px;
-    text-align: center;
-    font-size: 1.3rem;
+.submitButton:active {
+    transform: scale(0.98);
 }
 
-.registerLink a {
-    color: #bababa;
+/* 하단 링크 영역 */
+.footerLinks {
+    margin-top: 30px;
+    border-top: 1px solid #333;
+    padding-top: 20px;
+    font-size: 0.85rem;
+    color: #888;
+}
+
+.linkItem {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+}
+
+.linkItem span {
+    color: #777;
+}
+
+.linkItem a {
+    color: #bbbbbb;
     text-decoration: none;
-    font-size: 1.3rem;
+    font-weight: 500;
 }
 
-.registerLink a:hover {
+.linkItem a:hover {
+    color: #009A83;
     text-decoration: underline;
 }
 
+/* 반응형 처리 (태블릿/모바일) */
+@media (max-width: 900px) {
+    .loginCard {
+        width: 90%;
+        height: auto;
+        flex-direction: column;
+        margin-top: 0; /* 모바일에서는 마진 제거 */
+    }
+
+    .leftPane {
+        display: none; /* 모바일에서는 이미지 숨김 */
+    }
+
+    .rightPane {
+        padding: 40px 20px;
+    }
+}

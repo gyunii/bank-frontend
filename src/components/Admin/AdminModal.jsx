@@ -5,10 +5,11 @@ const AdminModal = ({ isOpen, onClose, onSave, user }) => {
     const [formData, setFormData] = useState({
         name: '',
         email: '',
-        password: '', // 비밀번호 필드 추가
-        role: '사원',
-        dept: '',
-        status: '활성'
+        password: '',
+        level: 1, // Integer: 1~5
+        auth: '일반',
+        team: '',
+        status: 1 // Integer: 1(활성), 0(비활성)
     });
 
     useEffect(() => {
@@ -16,9 +17,10 @@ const AdminModal = ({ isOpen, onClose, onSave, user }) => {
             setFormData({
                 name: user.name,
                 email: user.email,
-                password: '', // 수정 시 비밀번호는 비워둠 (변경할 경우에만 입력)
-                role: user.role,
-                dept: user.dept,
+                password: '',
+                level: user.level,
+                auth: user.auth || '일반',
+                team: user.team,
                 status: user.status
             });
         } else {
@@ -26,9 +28,10 @@ const AdminModal = ({ isOpen, onClose, onSave, user }) => {
                 name: '',
                 email: '',
                 password: '',
-                role: '사원',
-                dept: '',
-                status: '활성'
+                level: 1,
+                auth: '일반',
+                team: '',
+                status: 1
             });
         }
     }, [user, isOpen]);
@@ -37,10 +40,18 @@ const AdminModal = ({ isOpen, onClose, onSave, user }) => {
 
     const handleChange = (e) => {
         const { name, value } = e.target;
-        setFormData({
-            ...formData,
-            [name]: value
-        });
+        
+        if (name === 'level' || name === 'status') {
+             setFormData({
+                ...formData,
+                [name]: parseInt(value, 10)
+            });
+        } else {
+            setFormData({
+                ...formData,
+                [name]: value
+            });
+        }
     };
 
     const handleSave = () => {
@@ -95,28 +106,44 @@ const AdminModal = ({ isOpen, onClose, onSave, user }) => {
                             </td>
                         </tr>
                         <tr>
-                            <th>권한</th>
+                            <th>직급 (Level)</th>
                             <td>
                                 <select 
-                                    name="role"
+                                    name="level"
                                     className={styles.fullSelect} 
-                                    value={formData.role}
+                                    value={formData.level}
                                     onChange={handleChange}
                                 >
-                                    <option value="최고관리자">최고관리자</option>
-                                    <option value="관리자">관리자</option>
-                                    <option value="사원">사원</option>
+                                    <option value={1}>Lv.1 (신입/서포터)</option>
+                                    <option value={2}>Lv.2 (일반 행원)</option>
+                                    <option value={3}>Lv.3 (대리/과장)</option>
+                                    <option value={4}>Lv.4 (차장/팀장)</option>
+                                    <option value={5}>Lv.5 (지점장급)</option>
                                 </select>
                             </td>
                         </tr>
                         <tr>
-                            <th>소속</th>
+                            <th>권한 (Auth)</th>
+                            <td>
+                                <select 
+                                    name="auth"
+                                    className={styles.fullSelect} 
+                                    value={formData.auth}
+                                    onChange={handleChange}
+                                >
+                                    <option value="전체">전체</option>
+                                    <option value="일반">일반</option>
+                                </select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>소속 (Team)</th>
                             <td>
                                 <input 
                                     type="text" 
-                                    name="dept"
+                                    name="team"
                                     className={styles.fullInput} 
-                                    value={formData.dept}
+                                    value={formData.team}
                                     onChange={handleChange}
                                 />
                             </td>
@@ -128,8 +155,8 @@ const AdminModal = ({ isOpen, onClose, onSave, user }) => {
                                     <input 
                                         type="radio" 
                                         name="status" 
-                                        value="활성"
-                                        checked={formData.status === '활성'}
+                                        value={1}
+                                        checked={formData.status === 1}
                                         onChange={handleChange}
                                     /> 활성
                                 </label>
@@ -137,8 +164,8 @@ const AdminModal = ({ isOpen, onClose, onSave, user }) => {
                                     <input 
                                         type="radio" 
                                         name="status" 
-                                        value="비활성"
-                                        checked={formData.status === '비활성'}
+                                        value={0}
+                                        checked={formData.status === 0}
                                         onChange={handleChange}
                                     /> 비활성
                                 </label>
