@@ -1,0 +1,121 @@
+.userContainer {
+    width: 100%;
+    background-color: #fff;
+}
+
+.title {
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 20px;
+    color: #333;
+}
+
+.topBar {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    border-top: 1px solid #ddd;
+    padding-top: 20px;
+}
+
+.searchWrapper {
+    position: relative;
+    width: 400px;
+}
+
+.searchInput {
+    width: 100%;
+    padding: 8px 10px 8px 35px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.searchIcon {
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #999;
+}
+
+.actionBtns {
+    display: flex;
+    gap: 8px;
+}
+
+.roleSelect {
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 0 10px;
+    background-color: #f9f9f9;
+}
+
+.deleteBtn {
+    background-color: #d9534f;
+    color: white;
+    border: none;
+    padding: 6px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.addBtn {
+    background-color: #0000ff;
+    color: white;
+    border: none;
+    padding: 6px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+/* Table Styles */
+.userTable {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: center;
+}
+
+.userTable thead th {
+    background-color: #e6f7f4; /* 이미지의 연한 민트색 */
+    padding: 12px;
+    border-bottom: 1px solid #eee;
+    font-weight: 600;
+}
+
+.userTable tbody td {
+    padding: 15px;
+    border-bottom: 1px solid #eee;
+    vertical-align: middle;
+}
+
+.inlineSelect {
+    padding: 4px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.statusBadge {
+    padding: 4px 12px;
+    border-radius: 4px;
+    font-size: 12px;
+}
+
+.active {
+    background-color: #cce5ff;
+    color: #004085;
+}
+
+.inactive {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+.editBtn {
+    background-color: #888;
+    color: white;
+    border: none;
+    padding: 4px 8px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+}

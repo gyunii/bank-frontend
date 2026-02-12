@@ -1,0 +1,83 @@
+.registerContainer {
+    max-width: 400px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.registerContainer h2 {
+    text-align: center;
+    margin-bottom: 1rem;
+    color: #333;
+}
+
+.registerContainer h1 {
+    text-align: center;
+    margin-bottom: 3rem;
+    color: #009A83;
+}
+
+.form {
+    display: flex;
+    flex-direction: column;
+}
+
+.inputGroup {
+    margin-bottom: 15px;
+}
+
+.inputGroup label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 500;
+    color: #555;
+    text-align: left;
+    padding-left: 1rem;
+    font-size: 1.3rem;
+}
+
+.inputGroup input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+    font-size: 1rem;
+    outline: none;
+}
+
+.inputGroup input:focus {
+    border: 1px solid #009A83;
+    box-shadow: 0 0 0 2px rgba(0, 154, 131, 0.2);
+}
+
+.submitButton {
+    padding: 12px;
+    background-color: #009A83;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 1.3rem;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    margin: 1rem 0;
+}
+
+.submitButton:hover {
+    background-color: #027c6b;
+}
+
+.loginLink {
+    margin-top: 20px;
+    text-align: center;
+    font-size: 1.3rem;
+}
+
+.loginLink a {
+    color: #bababa;
+    text-decoration: none;
+    font-size: 1.3rem;
+}
+
+.loginLink a:hover {
+    text-decoration: underline;
+}

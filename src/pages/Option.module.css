@@ -1,0 +1,48 @@
+.content {
+    display: flex;
+    flex-direction: row;
+    gap: 2rem;
+    position : absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+.box {
+    position: relative;
+}
+.box:hover {
+    transform: scale(1.05);
+
+}
+.bannerImage {
+    width: 20rem;
+    height: 25rem;
+    object-fit: cover;
+
+}
+.box .text {
+    position: absolute;
+    width: 15rem;
+    z-index: 1;
+    top: 17rem;
+    left: 2rem;
+    font-size: 1.5rem;
+    font-weight: 700;
+    white-space: nowrap;
+}
+.box .sub_text{
+    position: absolute;
+    width: 15rem;
+    z-index: 1;
+    top: 20rem;
+    left: 2rem;
+    font-size: 1.3rem;
+    white-space: nowrap;
+}
+.title {
+    position: absolute;
+    top: 7rem;
+    left: 20rem;
+    font-size: 2rem ;
+    font-weight: 400;
+}
