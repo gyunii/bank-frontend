@@ -14,6 +14,8 @@ import AdminLogin from './pages/Admin/AdminLogin.jsx';
 import AdminMain from './pages/Admin/AdminMain.jsx';
 import Kiosk from './pages/Kiosk/Kiosk.jsx';
 import BankerWorkSpace from './pages/Banker/BankerWorkSpace.jsx';
+import ModalTestPage from './components/common/ModalTestPage.jsx';
+import LoadingTestPage from './components/common/LoadingTestPage.jsx';
 
 function App() {
   return (
@@ -38,6 +40,10 @@ function App() {
         
         {/* Member 전용 페이지 */}
         <Route path="/BankerWorkSpace" element={<PrivateRoute allowedRoles={['member']}><BankerWorkSpace /></PrivateRoute>} />
+
+        {/* 테스트용 페이지 (개발용) */}
+        <Route path="/test-modal" element={<ModalTestPage />} />
+        <Route path="/test-loading" element={<LoadingTestPage />} />
       </Routes>
     </Layout>
   );
