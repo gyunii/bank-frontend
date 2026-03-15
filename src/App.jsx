@@ -29,9 +29,9 @@ function App() {
         {/* Customer 전용 페이지 */}
         <Route path="/Option" element={<PrivateRoute allowedRoles={['customer']}><Option /></PrivateRoute>} />
         <Route path="/My" element={<PrivateRoute allowedRoles={['customer']}><MyPage /></PrivateRoute>} />
-        <Route path="/fast-task" element={<PrivateRoute allowedRoles={['customer']}><FastTask /></PrivateRoute>} />
+        {/* <Route path="/fast-task" element={<PrivateRoute allowedRoles={['customer']}><FastTask /></PrivateRoute>} />
         <Route path="/consult-task" element={<PrivateRoute allowedRoles={['customer']}><ConsultTask /></PrivateRoute>} />
-        <Route path="/special-task" element={<PrivateRoute allowedRoles={['customer']}><SpecialTask /></PrivateRoute>} />
+        <Route path="/special-task" element={<PrivateRoute allowedRoles={['customer']}><SpecialTask /></PrivateRoute>} /> */}
         
         <Route path="/AdminLogin" element={<AdminLogin />} />
         
