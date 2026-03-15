@@ -14,8 +14,6 @@ const Navbar = () => {
             </div>
 
             <ul className={styles.navLinks}>
-                <li><Link to="/Compare">상품비교</Link></li>
-                <li><Link to="/Tips">금융꿀팁</Link></li>
 
                 <li><Link to="/My">마이페이지</Link></li>
                 {user ? (
