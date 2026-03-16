@@ -5,7 +5,6 @@ import Home from "./pages/Customer/Home.jsx";
 import Login from './pages/Customer/Login.jsx';
 import Register from './pages/Customer/Register.jsx';
 import MyPage from './pages/Customer/MyPage.jsx';
-// import Option from './pages/Customer/Option.jsx';
 import PrivateRoute from './components/PrivateRoute.jsx';
 import AdminLogin from './pages/Admin/AdminLogin.jsx';
 import AdminMain from './pages/Admin/AdminMain.jsx';
@@ -24,7 +23,6 @@ function App() {
         <Route path="/Register" element={<Register />} />
         
         {/* Customer 전용 페이지 */}
-        {/* <Route path="/Option" element={<PrivateRoute allowedRoles={['customer']}><Option /></PrivateRoute>} /> */}
         <Route path="/My" element={<PrivateRoute allowedRoles={['customer']}><MyPage /></PrivateRoute>} />
         
         <Route path="/AdminLogin" element={<AdminLogin />} />
