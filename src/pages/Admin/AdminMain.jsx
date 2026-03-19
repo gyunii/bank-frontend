@@ -10,6 +10,9 @@ import UserManagement from '../../components/Admin/UserManagement.jsx';
 import Admin_dashboard from './Admin_dashboard.jsx';
 import BoardManagement from '../../components/Admin/BoardManagement.jsx';
 
+// ★ 마이페이지 컴포넌트 불러오기
+import AdminMyPage from './AdminMyPage.jsx';
+
 const AdminMain = () => {
     const { user, logout, loading } = useAuth();
     const navigate = useNavigate();
@@ -65,10 +68,16 @@ const AdminMain = () => {
             return <div className={styles.card}><BoardManagement type="news" title="새소식"/></div>;
         case 'events':
             return <div className={styles.card}><BoardManagement type="events" title="이벤트" /></div>;
+            
+        // ★ 'info' 탭일 때 AdminMyPage를 보여주도록 추가
+        case 'info':
+            return <AdminMyPage />;
+            
         default:
             return <div className={styles.card}><Admin_dashboard /></div>;
     }
 };
+
     return (
         <div className={styles.container}>
             <nav className={styles.sidebar}>
@@ -90,7 +99,10 @@ const AdminMain = () => {
                 </div>
                 
                 <div className={styles.bottomMenu}>
-                    <div className={styles.menuItem} onClick={() => setActiveTab('info')}>
+                    <div 
+                        className={`${styles.menuItem} ${activeTab === 'info' ? styles.activeMenu : ''}`} 
+                        onClick={() => setActiveTab('info')}
+                    >
                         <img src={pwIcon} alt="비밀번호 변경" className={styles.menuIcon} />
                         비밀번호 변경
                     </div>
