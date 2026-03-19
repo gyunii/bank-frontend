@@ -34,7 +34,7 @@
     flex-shrink: 0; 
     height: auto;
     display: block;
-    vertical-align: bottom;
+    /* vertical-align: bottom; */
 }
 
 /* 4. 새로 추가: 무한 슬라이드 타이밍 제어 */
