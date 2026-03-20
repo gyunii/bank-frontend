@@ -144,7 +144,7 @@
     padding-bottom: 8px;
 }
 
-infoLabel {
+.infoLabel {
     width: 80px; 
     font-weight: bold;
     color: #333;
@@ -163,3 +163,22 @@ infoLabel {
     line-height: 1.6; /* 줄 간격 넉넉하게 */
     text-align: left;
 }
+
+.emptyMessage {
+    padding: 50px;
+    color: #888;
+    text-align: center;
+}
+
+.nullText {
+    color: #a6a6a6;
+}
+
+.alertText {
+    text-align: center;
+    padding: 20px 0;
+    font-size: 16px;
+    font-weight: bold;
+    color: #1f2937;
+}
+

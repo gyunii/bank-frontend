@@ -10,6 +10,18 @@ const UserManagement = () => {
     const [selectedUser, setSelectedUser] = useState(null);
     const [selectedRowId, setSelectedRowId] = useState(null);
 
+    // ★ 알림(Alert) 모달 상태 관리 추가
+    const [alertModal, setAlertModal] = useState({
+        isOpen: false,
+        title: '',
+        message: ''
+    });
+
+    // ★ 알림 모달을 쉽게 띄우기 위한 헬퍼 함수
+    const showAlert = (title, message) => {
+        setAlertModal({ isOpen: true, title, message });
+    };
+
     // 1. 멤버 목록 조회 함수
     const fetchMembers = async () => {
         try {
@@ -27,7 +39,7 @@ const UserManagement = () => {
         fetchMembers();
     }, []);
 
-    // 2. 등록/수정 저장 로직 (이 부분이 빠져서 반영이 안 됐던 거예요!)
+    // 2. 등록/수정 저장 로직
     const handleSaveUser = async (userData) => {
         const memberData = {
             name: userData.name,
@@ -61,38 +73,38 @@ const UserManagement = () => {
             if (response.ok) {
                 const result = await response.json();
                 if (result.result === 'SUCCESS') {
-                    alert(selectedUser ? '멤버 수정 성공!' : '멤버 등록 성공!');
-                    fetchMembers(); // 여기서 목록을 새로고침해야 반영됩니다.
+                    // alert 대신 공통 모달 사용
+                    showAlert('성공', selectedUser ? '멤버가 성공적으로 수정되었습니다.' : '멤버가 성공적으로 등록되었습니다.');
+                    fetchMembers();
                 } else {
-                    alert('실패했습니다.');
+                    showAlert('실패', '작업에 실패했습니다.');
                 }
             }
         } catch (error) {
             console.error('Error:', error);
-            alert('오류가 발생했습니다.');
+            showAlert('오류', '서버 통신 중 오류가 발생했습니다.');
         }
         setIsModalOpen(false);
         setSelectedUser(null);
     };
 
-
     const confirmDelete = async () => {
         try {
-            // 💡 쿼리 스트링 방식 (?id=값) 으로 주소를 작성해야 합니다.
             const response = await fetch(`/api/user/member?id=${selectedUser.id}`, { 
                 method: 'DELETE' 
             });
 
             if (response.ok) {
-                alert('삭제되었습니다.');
+                showAlert('삭제 완료', '해당 임직원이 성공적으로 삭제되었습니다.');
                 fetchMembers();
                 setSelectedRowId(null);
                 setSelectedUser(null);
             } else {
-                alert('삭제 실패');
+                showAlert('삭제 실패', '삭제 작업에 실패했습니다.');
             }
         } catch (error) {
             console.error('삭제 오류:', error);
+            showAlert('오류', '서버 통신 중 오류가 발생했습니다.');
         }
         setIsDeleteModalOpen(false);
     };
@@ -110,7 +122,7 @@ const UserManagement = () => {
 
     const handleDeleteClick = () => {
         if (!selectedUser) {
-            alert('삭제할 임직원을 선택해주세요.');
+            showAlert('안내', '삭제할 임직원을 먼저 선택해주세요.');
             return;
         }
         setIsDeleteModalOpen(true);
@@ -166,7 +178,7 @@ const UserManagement = () => {
                 </thead>
                 <tbody>
                     {users.length === 0 ? (
-                        <tr><td colSpan="10" style={{ padding: '50px', color: '#888' }}>등록된 임직원이 없습니다.</td></tr>
+                        <tr><td colSpan="10" className={styles.emptyMessage}>등록된 임직원이 없습니다.</td></tr>
                     ) : (
                         users.map((user) => (
                             <tr 
@@ -179,7 +191,7 @@ const UserManagement = () => {
                                 <td>{getLevelLabel(user.level)}</td>
                                 <td>{user.auth}</td>
                                 <td>{user.team}</td>
-                                <td>{user.counterNumber || <span style={{ color: '#a6a6a6' }}>null</span>}</td>
+                                <td>{user.counterNumber || <span className={styles.nullText}>null</span>}</td>
                                 <td>{user.joinDate}</td>
                                 <td>{user.lastLogin ? new Date(user.lastLogin).toLocaleString() : '-'}</td>
                                 <td>
@@ -196,7 +208,7 @@ const UserManagement = () => {
                 </tbody>
             </table>
 
-            {/* AdminModal에 onSave를 꼭 연결해줘야 수정/등록이 작동합니다 */}
+            {/* 임직원 등록/수정 모달 */}
             <AdminModal 
                 isOpen={isModalOpen} 
                 onClose={() => { setIsModalOpen(false); setSelectedUser(null); }} 
@@ -204,14 +216,17 @@ const UserManagement = () => {
                 onSave={handleSaveUser} 
             />
             
+            {/* 삭제 확인 모달 */}
             <CustomModal 
                 isOpen={isDeleteModalOpen} 
                 onClose={() => setIsDeleteModalOpen(false)} 
                 title="구성원 영구 삭제" 
                 onConfirm={confirmDelete}
+                onCancel={() => setIsDeleteModalOpen(false)} // 삭제 모달에는 취소 버튼 추가
                 confirmText="삭제 실행"
+                cancelText="취소"
             >
-                <div className={styles.deleteBox}>
+                <div className={styles.deleteInfoBox}>
                     <div className={styles.infoRow}>
                         <span className={styles.infoLabel}>이름</span> 
                         <span className={styles.infoValue}>{selectedUser?.name}</span>
@@ -220,11 +235,26 @@ const UserManagement = () => {
                         <span className={styles.infoLabel}>이메일</span> 
                         <span className={styles.infoValue}>{selectedUser?.email}</span>
                     </div>
-                    <p className={styles.warnText}>
+                    <p className={styles.warningText}>
                         * 삭제된 임직원 정보는 복구할 수 없습니다. 삭제를 진행하시겠습니까?
                     </p>
                 </div>
             </CustomModal>
+
+            {/* ★ 공통 알림(Alert) 모달 (등록 성공, 실패, 삭제 완료 등) */}
+            <CustomModal
+                isOpen={alertModal.isOpen}
+                onClose={() => setAlertModal({ ...alertModal, isOpen: false })}
+                title={alertModal.title}
+                onConfirm={() => setAlertModal({ ...alertModal, isOpen: false })}
+                confirmText="확인"
+                // onCancel을 넘기지 않아서 '취소' 버튼 없이 '확인' 버튼만 렌더링 됩니다.
+            >
+                <p className={styles.alertText}>
+                    {alertModal.message}
+                </p>
+            </CustomModal>
+
         </div>
     );
 };
