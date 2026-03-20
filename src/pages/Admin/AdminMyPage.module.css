@@ -189,3 +189,19 @@
 .submitBtn:hover {
   background-color: #00a884;
 }
+
+.modalConfirmText {
+  text-align: center;
+  padding: 20px 0;
+  font-size: 16px;
+  color: #1f2937;
+  font-weight: bold;
+}
+
+.modalSuccessText {
+  text-align: center;
+  padding: 20px 0;
+  font-size: 16px;
+  color: #1f2937;
+  font-weight: bold;
+}
