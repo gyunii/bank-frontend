@@ -5,7 +5,7 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    overflow: hidden;
+    overflow: auto;
     position: relative;
 }
 
@@ -32,6 +32,7 @@
     justify-content: center;
     align-items: center;
     z-index: 2;
+    min-width: 1300px;
 }
 
 /* 💡 2. 우측 상단 윈도우 컨트롤 & 테마 */
@@ -201,8 +202,10 @@
     font-weight: bold;
     font-size: 14px;
     text-shadow: 0px 1px 2px rgba(0,0,0,0.1);
-    position: absolute;
-    left: 40rem;
+    position: relative;
+    margin-left: 20px;
+    z-index: 1000;
+    cursor: pointer;
 }
 
 /* 💡 4. 우측 돋보기 슬라이더 */
@@ -576,3 +579,196 @@
     background: #e6f7f5;
     border-radius: 5px;
 }
+
+/* 채팅창 모달 */
+.chatModalOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0,0,0,0.35);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+}
+
+.chatWindow {
+    width: 420px;
+    height: 500px;
+    background: white;
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+}
+
+.chatHeader {
+    background: #f7d77b;
+    padding: 12px;
+    font-weight: bold;
+    display: flex;
+    justify-content: space-between;
+    border-top-left-radius: 12px;
+    border-top-right-radius: 12px;
+}
+
+.chatBody {
+    flex: 1;
+    overflow-y: auto;
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.customerMsg {
+    align-self: flex-start;
+    background: #f1f3f5;
+    padding: 10px 14px;
+    border-radius: 16px;
+    max-width: 70%;
+    font-size: 14px;
+    position: relative;
+}
+
+
+.bankerMsg {
+    align-self: flex-end;
+    background: #f7d77b;
+    color: #000;
+    padding: 10px 14px;
+    border-radius: 16px;
+    max-width: 70%;
+    font-size: 14px;
+    position: relative;
+}
+
+.chatInput {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 14px;
+    border-top: 1px solid #ddd;
+}
+
+.chatInput input {
+    flex: 1;
+    border: none;
+    outline: none;
+    font-size: 15px;
+}
+
+.chatCloseBtn {
+    background: transparent;
+    border: none;
+    font-size: 18px;
+    cursor: pointer;
+    color: #666;
+    transition: all 0.2s;
+}
+
+.chatCloseBtn:hover {
+    color: #000;
+    transform: scale(1.1);
+}
+
+.sendBtn {
+    background: none;
+    border: none;
+    font-size: 22px;
+    color: #333;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.sendBtn:hover {
+    color: #000;
+    transform: scale(1.15);
+}
+
+
+.accountForm{
+    display:flex;
+    flex-direction:column;
+    gap:14px;
+    padding:10px;
+}
+
+.formGroup{
+    display:flex;
+    flex-direction:column;
+    gap:5px;
+}
+
+.formGroup label{
+    font-size:13px;
+    font-weight:600;
+    color:#555;
+}
+
+.formGroup input,
+.formGroup select{
+    padding:8px 10px;
+    border-radius:6px;
+    border:1px solid #ddd;
+    font-size:14px;
+}
+
+.formGroup input:focus,
+.formGroup select:focus{
+    outline:none;
+    border-color:#4a90e2;
+}
+
+.accountBtnRow {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.accountBtnRow button {
+    flex: 1;
+}
+
+.btnCancel{
+    padding:10px;
+    border:none;
+    background:#e0e0e0;
+    border-radius:12px;
+    cursor:pointer;
+    font-weight:500;
+}
+
+.btnCreate{
+    padding:10px;
+    border:none;
+    background:#35987c;
+    color:white;
+    border-radius:8px;
+    cursor:pointer;
+    font-weight:600;
+    border-radius:12px; 
+}
+
+
+
+.btnAccept{
+    padding:8px 12px;
+    border:none;
+    background:#5abcb0;
+    color:white;
+    border-radius:20px;
+    cursor:pointer;
+    font-size:13px;
+    font-weight:500;
+    transition:all 0.2s ease;
+}
+
+.btnAccept:hover{
+    background:#36c2cd;
+    transform:translateY(-1px);
+}
+

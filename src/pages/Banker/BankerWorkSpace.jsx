@@ -1,17 +1,37 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styles from './BankerWorkSpace.module.css';
 import WorkSpaceBackground from '../../images/Banker/WorkSpaceBackground.png';
 import { useAuth } from '../../context/AuthContext';
 import BankerModal from '../../components/Banker/BankerModal.jsx';
+import AccountCreateForm from "../../pages/Banker/AccountCreate";
+import ChatModal from "../../pages/Banker/ChatModal.jsx";
 
 const BankerWorkSpace = () => {
     const [tasks, setTasks] = useState([]);
     const [selectedTask, setSelectedTask] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isChatOpen, setIsChatOpen] = useState(false);
+    const [messages, setMessages] = useState([
+    { sender: "customer", text: "안녕하세요 상담 요청드립니다." },
+    { sender: "banker", text: "네 고객님 무엇을 도와드릴까요?" }
+    ]);
+
+    const [selectedWorkType, setSelectedWorkType] = useState(null);
+
+
+    const [accountType, setAccountType] = useState("");
+    const [accountAlias, setAccountAlias] = useState("");
+    const [accountPassword, setAccountPassword] = useState("");
+    const [confirmPassword, setConfirmPassword] = useState("");
+
+    const [input, setInput] = useState("");
+    const chatEndRef = useRef(null);
+
     const { user, logout, loading } = useAuth();
     const navigate = useNavigate();
+
 
     useEffect(() => {
         if (!loading && !user) {
@@ -53,6 +73,24 @@ const BankerWorkSpace = () => {
         }
     }, [user]);
 
+    // 자동 스크롤
+    useEffect(() => {
+        chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    }, [messages]);
+
+    // 고객 바뀌면 채팅 초기화
+useEffect(() => {
+    setSelectedWorkType(null);
+
+    if (selectedTask) {
+        setMessages([
+            { sender: "customer", text: "안녕하세요 상담 요청드립니다." },
+            { sender: "banker", text: "네 고객님 무엇을 도와드릴까요?" }
+        ]);
+    }
+}, [selectedTask]);
+
+
     if (loading) return <div>Loading...</div>;
     if (!user) return null;
 
@@ -61,6 +99,68 @@ const BankerWorkSpace = () => {
         navigate('/AdminLogin');
     };
 
+    /*채팅 전송 함수*/
+    const handleSend = () => {
+    if (!input.trim()) return;
+
+    setMessages(prev => [
+        ...prev,
+        { sender: "banker", text: input }
+    ]);
+
+        setInput("");
+    };
+
+    // 계좌번호 자동 생성 함수
+    const generateAccountNumber = () => {
+        const part1 = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
+        const part2 = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
+        const part3 = Math.floor(Math.random() * 1000000).toString().padStart(6, '0');
+        return `${part1}-${part2}-${part3}`;
+    };
+    
+        /* 계좌 생성 함수 */
+        const handleCreateAccount = async () => {
+            if (!selectedTask) return;
+
+            if (accountPassword !== confirmPassword) {
+                alert("비밀번호가 일치하지 않습니다.");
+                return;
+            }
+
+
+            try {
+
+                const params = new URLSearchParams({
+                    userId: selectedTask.userId,
+                    accountType: accountType,
+                    accountAlias: accountAlias,
+                    accountPassword: accountPassword
+                });
+
+                const response = await fetch(`/api/account/register?${params}`, {
+                    method: "POST"
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+
+                    alert(`계좌가 생성되었습니다.\n계좌번호: ${data.account.accountNumber}`);
+                    setSelectedWorkType(null);
+
+                    // 폼 초기화
+                    setAccountType("");
+                    setAccountAlias("");
+                    setAccountPassword("");
+                    setConfirmPassword("");
+                } else {
+                    alert("계좌 생성 실패");
+                }
+
+            } catch (error) {
+                console.error("계좌 생성 오류:", error);
+            }
+        };
     // 업무 수락 (WAITING -> IN_PROGRESS)
     const handleAcceptTask = async (task) => {
         try {
@@ -175,11 +275,17 @@ const BankerWorkSpace = () => {
                             </div>
 
                             {selectedTask && (
-                                <div className={styles.notificationBanner}>
-                                    {/*이부분은 건들지말것*/}
-                                    🔔고객님의 채팅 상담업무가 도착 했습니다
+                                <div
+                                    className={styles.notificationBanner}
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    console.log("chat open");
+                                    setIsChatOpen(true);
+                                }}
+                                >
+                                    🔔 고객님의 채팅 상담업무가 도착했습니다
                                 </div>
-                            )}
+                                )}
                         </div>
                     </header>
 
@@ -222,7 +328,7 @@ const BankerWorkSpace = () => {
                                                             className={styles.btnComplete}
                                                             onClick={(e) => {
                                                                 e.stopPropagation();
-                                                                handleCompleteTask(task); // task를 인자로 전달
+                                                                handleCompleteTask(task); 
                                                             }}
                                                         >
                                                             처리 완료
@@ -266,14 +372,50 @@ const BankerWorkSpace = () => {
                                             </div>
                                         </div>
                                         <div className={styles.accountList}>
+
                                             <div className={styles.accountCard}>
+
                                                 <div className={styles.accountHeader}>
                                                     <h3>요청 업무</h3>
                                                     <span className={styles.tagBlue}>{selectedTask.taskType}</span>
                                                 </div>
+
                                                 <p>상세 내용: {selectedTask.taskDetailType}</p>
                                                 <p>접수 시간: {selectedTask.createdAt}</p>
+
+                                                {/* 버튼 (폼 열기 전만 보임) */}
+                                                {!selectedWorkType && (
+                                                    (selectedTask.taskType === "계좌 개설" ||
+                                                    selectedTask.taskDetailType === "계좌 개설") && (
+                                                        <button
+                                                            className={styles.btnAccept}
+                                                            style={{ marginTop: "10px" }}
+                                                            onClick={() => setSelectedWorkType("ACCOUNT_CREATE")}
+                                                        >
+                                                            계좌 개설 처리
+                                                        </button>
+                                                    )
+                                                )}
+
+                                                {selectedWorkType === "ACCOUNT_CREATE" && (
+                                                        <AccountCreateForm
+                                                            accountType={accountType}
+                                                            setAccountType={setAccountType}
+                                                            accountAlias={accountAlias}
+                                                            setAccountAlias={setAccountAlias}
+                                                            accountPassword={accountPassword}
+                                                            setAccountPassword={setAccountPassword}
+                                                            confirmPassword={confirmPassword}
+                                                            setConfirmPassword={setConfirmPassword}
+                                                            onCancel={() => setSelectedWorkType(null)}
+                                                            onCreate={handleCreateAccount}
+                                                        />
+                                                    )}
+
                                             </div>
+
+
+
                                         </div>
                                     </div>
 
@@ -321,16 +463,19 @@ const BankerWorkSpace = () => {
 
             </div>
 
-            {/* BankerModal 추가 */}
-            {isModalOpen && selectedTask && (
-                <BankerModal 
-                    task={selectedTask} 
-                    onClose={() => setIsModalOpen(false)} 
-                    onComplete={() => handleCompleteTask(selectedTask)} // selectedTask를 인자로 전달
-                />
-            )}
-        </div>
-    );
-};
+
+                    {isChatOpen && (
+                        <ChatModal
+                            messages={messages}
+                            input={input}
+                            setInput={setInput}
+                            onSend={handleSend}
+                            onClose={() => setIsChatOpen(false)}
+                            chatEndRef={chatEndRef}
+                        />
+                    )}
+                </div>
+            );
+        };
 
 export default BankerWorkSpace;
