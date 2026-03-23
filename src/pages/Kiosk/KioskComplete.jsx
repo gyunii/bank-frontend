@@ -29,29 +29,40 @@ const KioskComplete = ({ formData, onGoHome, onAddMore, userName }) => {
                         taskDetailType: formData.task
                     }),
                 });
-
                 if (response.ok) {
                     const data = await response.json();
-                    if (data.result === 'SUCCESS') {
-                        // 대기표 발급 성공 후 확인 API 호출
-                        const checkResponse = await fetch('/api/kiosk/task');
-                        if (checkResponse.ok) {
-                            const checkData = await checkResponse.json();
-                            console.log("Check Task Response:", checkData); // 디버깅 로그
-                            if (checkData.result === 'SUCCESS') {
-                                const task = checkData.task;
-                                setTicketInfo({
-                                    ticketNumber: task.ticketNumber || '-',
-                                    level: task.assignedLevel || '-',
-                                    counter: task.name ? `${task.name} (${task.level})` : '배정 중'
-                                });
-                            } else {
-                                console.error("Failed to get task info:", checkData);
+                    
+                    switch (data.result) {
+                        case 'SUCCESS':
+                            // 대기표 발급 성공 후 확인 API 호출
+                            const checkResponse = await fetch('/api/kiosk/task');
+                            if (checkResponse.ok) {
+                                const checkData = await checkResponse.json();
+                                if (checkData.result === 'SUCCESS') {
+                                    const task = checkData.task;
+                                    setTicketInfo({
+                                        ticketNumber: task.ticketNumber || '-',
+                                        level: task.assignedLevel || '-',
+                                        counter: task.name ? `${task.name} (${task.level})` : '배정 중'
+                                    });
+                                } else {
+                                    console.error("Failed to get task info:", checkData);
+                                }
                             }
-                        }
-                    } else {
-                        alert('대기표 발급 실패: ' + data.message);
-                        onGoHome();
+                            break;
+                        case 'FAILURE_TASK_IN_PROGRESS':
+                            alert('이미 처리중인 업무가 있습니다.');
+                            onGoHome();
+                            break;
+                        case 'FAILURE_SESSION':
+                            alert('세션이 만료되었습니다. 다시 로그인해주세요.');
+                            onGoHome(); // 또는 로그인 페이지로 이동
+                            break;
+                        case 'FAILURE':
+                        default:
+                            alert('대기표 발급에 실패했습니다: ' + (data.message || '알 수 없는 오류'));
+                            onGoHome();
+                            break;
                     }
                 } else {
                     alert('서버 오류 발생');
@@ -90,6 +101,7 @@ const KioskComplete = ({ formData, onGoHome, onAddMore, userName }) => {
             </div>
 
             <div className={styles.progressIndicator}>
+                <div className={styles.step}></div>
                 <div className={styles.step}></div>
                 <div className={styles.step}></div>
                 <div className={styles.step}></div>

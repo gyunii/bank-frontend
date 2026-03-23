@@ -11,28 +11,30 @@ const KioskTaskSelect = ({ formData, setFormData, onNext, onPrev, userName }) =>
             id: 0,
             title: '빠른 업무',
             subtitle: 'EXPRESS SERVICE',
-            items: ['계좌 개설','입금 · 출금', '공과금 수납', '지로 납부', '통장 정리', '새 통장 발급', '체크카드 발급', '잔액증명서', '비밀번호 변경'],
+            items: ['계좌 개설','입금 · 출금', '새 통장 발급', '체크카드 발급', '잔액증명서', '통장 비밀번호 변경','자동이체 등록'],
             footer: '건당 3~5분·대기 3명',
             columns: 1 // 버튼 배열을 1열로
         },
+        // 계좌/개설, 입/출금 , 체크카드 발급, 통장 비밀번호 재설정
         {
             id: 1,
             title: '상담 업무',
             subtitle: 'CONSULTATION',
-            items: ['예금 · 적금 신규', '청약저축', '신용카드 신청', '모바일뱅킹 · OTP', '자동이체 등록', '환전 (현찰)', '신용대출 · 직장인대출', '펀드 · 방카슈랑스', 'IRP 퇴직연금', '주택담보대출', '외화 송금', '전세자금대출'],
+            items: ['예금 · 적금 신규', '청약저축', '신용카드 신청', '모바일뱅킹 · OTP','신용대출 · 직장인대출','IRP 퇴직연금', '주택담보대출', '전세자금대출', '펀드/보험 상담'],
             footer: '건당 10분·대기 11명',
             columns: 2 // 버튼 배열을 2열로
         },
+        // 예금 · 적금 신규, 청약저축, 신용카드 신청, 모바일뱅킹 · OTP, 대출(전세자금, 주택담보)  , 퇴직연금, 펀드보험 상담
         {
             id: 2,
             title: '기업 • 특수',
             subtitle: 'COPERATE / SPECIAL',
-            items: ['기업대출(운전/시설)', '수출입 · L/C', '법인계좌 개설', '특수 민원 처리', '외환 · 사업자', '부도 · 연체관리'],
+            items: ['기업대출(운전/시설)', '법인계좌 개설','부도 · 연체관리'],
             footer: '건당 25분·대기 2명',
             columns: 1 // 버튼 배열을 1열로
         }
+        // 기업대출, 법인계좌 개설, 부도 · 연체관리
     ];
-
     // 업무 선택 시 formData에 저장하고 다음 단계로 이동
     const handleTaskClick = (task, taskType) => {
         setFormData(prev => ({ ...prev, task: task, taskType: taskType }));
@@ -51,6 +53,7 @@ const KioskTaskSelect = ({ formData, setFormData, onNext, onPrev, userName }) =>
             </div>
 
             <div className={styles.progressIndicator}>
+                <div className={styles.step}></div>
                 <div className={styles.step}></div>
                 <div className={styles.step}></div>
                 <div className={`${styles.step} ${styles.active}`}></div>

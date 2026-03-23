@@ -701,6 +701,7 @@
     display:flex;
     flex-direction:column;
     gap:5px;
+
 }
 
 .formGroup label{
@@ -711,6 +712,7 @@
 
 .formGroup input,
 .formGroup select{
+    text-align: center;
     padding:8px 10px;
     border-radius:6px;
     border:1px solid #ddd;
@@ -750,7 +752,7 @@
     border-radius:8px;
     cursor:pointer;
     font-weight:600;
-    border-radius:12px; 
+    border-radius:12px;
 }
 
 
@@ -771,4 +773,3 @@
     background:#36c2cd;
     transform:translateY(-1px);
 }
-

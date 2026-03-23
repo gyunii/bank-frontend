@@ -1,9 +1,17 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import styles from './Kiosk.module.css';
+import CustomModal from '../../components/common/CustomModal';
 
 const KioskLogin = ({ formData, setFormData, onNext, onPrev }) => {
     // 서버 전송 중 버튼 중복 클릭 방지를 위한 상태
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [modalMessage, setModalMessage] = useState('');
+    
+    // 컴포넌트가 마운트될 때 ssn을 빈 문자열로 초기화
+    useEffect(() => {
+        setFormData(prev => ({ ...prev, ssn: '' }));
+    }, [setFormData]);
 
     // 키패드 클릭 핸들러
     const handleKeyPress = (num) => {
@@ -29,42 +37,49 @@ const KioskLogin = ({ formData, setFormData, onNext, onPrev }) => {
                 }).toString();
 
                 const response = await fetch(`/api/user/kiosk/login?${queryParams}`, {
-                    method: 'POST',
-                    headers: {
-                        // 'Content-Type': 'application/json', // 쿼리 파라미터로 보내므로 필요 없음
-                    },
-                    // body: JSON.stringify({ residentNumber: formData.ssn }), // 쿼리 파라미터로 보내므로 body 제거
+                    method: 'POST'
                 });
 
                 if (response.ok) {
                     const data = await response.json();
 
-                    if (data.result === 'SUCCESS') {
-                        // 성공 시 세션 정보를 다시 조회하여 사용자 이름 가져오기
-                        const sessionResponse = await fetch('/api/user/session');
-                        if (sessionResponse.ok) {
-                            const sessionData = await sessionResponse.json();
-                            if (sessionData.result === 'SUCCESS') {
-                                setFormData(prev => ({ ...prev, userName: sessionData.name }));
+                    switch (data.result) {
+                        case 'SUCCESS':
+                            // 성공 시 세션 정보를 다시 조회하여 사용자 이름 가져오기
+                            { const sessionResponse = await fetch('/api/user/session');
+                            if (sessionResponse.ok) {
+                                const sessionData = await sessionResponse.json();
+                                if (sessionData.result === 'SUCCESS') {
+                                    setFormData(prev => ({ ...prev, userName: sessionData.name }));
+                                }
                             }
-                        }
-
-                        alert('고객정보가 확인되었습니다.'); // 모달창(alert) 띄우기
-                        // 검증 완료 후 3단계로 이동
-                        onNext();
-                    } else {
-                        // 서버에서 에러 응답을 보낸 경우 (예: 존재하지 않는 주민번호)
-                        alert('일치하는 고객 정보가 없습니다. 다시 확인해주세요.');
-                        setFormData(prev => ({ ...prev, ssn: '' })); // 입력값 초기화
+                            setModalMessage('고객정보가 확인되었습니다.\n접수 화면으로 넘어갑니다.');
+                            setIsModalOpen(true);
+                            break; }
+                            
+                        case 'FAILURE_NOT_ALLOWED':
+                            setModalMessage('유효하지않은 사용자입니다.\n접근을 거부합니다.');
+                            setIsModalOpen(true);
+                            setFormData(prev => ({ ...prev, ssn: '' }));
+                            break;
+                            
+                        case 'FAILURE':
+                        default:
+                            setModalMessage('일치하는 고객 정보가 없습니다.\n다시 확인해주세요.');
+                            setIsModalOpen(true);
+                            setFormData(prev => ({ ...prev, ssn: '' }));
+                            break;
                     }
                 } else {
-                    alert('서버 오류가 발생했습니다.');
-                    setFormData(prev => ({ ...prev, ssn: '' })); // 입력값 초기화
+                    setModalMessage('서버 오류가 발생했습니다.');
+                    setIsModalOpen(true);
+                    setFormData(prev => ({ ...prev, ssn: '' }));
                 }
             } catch (error) {
                 console.error('로그인 API 통신 에러:', error);
-                alert('서버와 통신 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
-                setFormData(prev => ({ ...prev, ssn: '' })); // 입력값 초기화
+                setModalMessage('서버와 통신 중 오류가 발생했습니다.\n잠시 후 다시 시도해주세요.');
+                setIsModalOpen(true);
+                setFormData(prev => ({ ...prev, ssn: '' }));
             } finally {
                 setIsSubmitting(false); // 로딩 종료
             }
@@ -73,11 +88,21 @@ const KioskLogin = ({ formData, setFormData, onNext, onPrev }) => {
         }
     };
 
+    // 모달 확인 버튼 핸들러
+    const handleModalConfirm = () => {
+        setIsModalOpen(false);
+        // 성공 메시지일 때만 다음 단계로 이동
+        if (modalMessage.includes('고객정보가 확인되었습니다.')) {
+            onNext();
+        }
+    };
+
     return (
         <div className={styles.loginArea}>
             <div className={styles.progressIndicator}>
                 <div className={styles.step}></div>
                 <div className={`${styles.step} ${styles.active}`}></div>
+                <div className={styles.step}></div>
                 <div className={styles.step}></div>
                 <div className={styles.step}></div>
             </div>
@@ -132,6 +157,19 @@ const KioskLogin = ({ formData, setFormData, onNext, onPrev }) => {
             <button className={styles.prevButton} onClick={onPrev} disabled={isSubmitting}>
                 ← 이전으로
             </button>
+
+            {/* CustomModal 추가 */}
+            <CustomModal 
+                isOpen={isModalOpen} 
+                onClose={() => setIsModalOpen(false)} 
+                title="안내"
+                onConfirm={handleModalConfirm}
+                confirmText="확인"
+            >
+                <div style={{ padding: '20px', textAlign: 'center', fontSize: '1.2rem', color: '#333', whiteSpace: 'pre-line', lineHeight: '1.5' }}>
+                    {modalMessage}
+                </div>
+            </CustomModal>
         </div>
     );
 };
