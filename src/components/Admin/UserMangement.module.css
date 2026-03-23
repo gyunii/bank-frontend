@@ -68,7 +68,6 @@
     cursor: pointer;
 }
 
-/* Table Styles */
 .userTable {
     width: 100%;
     border-collapse: collapse;
@@ -76,7 +75,7 @@
 }
 
 .userTable thead th {
-    background-color: #e6f7f4; /* 이미지의 연한 민트색 */
+    background-color: #e6f7f4; 
     padding: 12px;
     border-bottom: 1px solid #eee;
     font-weight: 600;
@@ -88,10 +87,19 @@
     vertical-align: middle;
 }
 
-.inlineSelect {
-    padding: 4px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
+.userTable tbody tr {
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.activeRow {
+    background-color: #f0f7ff !important; 
+    border: 2px solid #0056b3; 
+}
+
+.activeRow td {
+    color: #0056b3;
+    font-weight: 500;
 }
 
 .statusBadge {
@@ -114,8 +122,61 @@
     background-color: #888;
     color: white;
     border: none;
-    padding: 4px 8px;
+    padding: 4px 12px;
     border-radius: 4px;
     cursor: pointer;
     font-size: 12px;
 }
+
+/* 삭제 모달 내부 스타일 */
+.deleteInfoBox {
+    padding: 10px 20px;
+    text-align: left; 
+}
+
+.infoRow {
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid #f0f0f0;
+    padding-bottom: 8px;
+}
+
+.infoLabel {
+    width: 80px; 
+    font-weight: bold;
+    color: #333;
+    text-align: left;
+}
+
+.infoValue {
+    color: #555;
+    padding-left: 10px;
+}
+
+.warningText {
+    margin-top: 20px;
+    color: #666;
+    font-size: 14px;
+    line-height: 1.6; 
+    text-align: left;
+}
+
+.emptyMessage {
+    padding: 50px;
+    color: #888;
+    text-align: center;
+}
+
+.nullText {
+    color: #a6a6a6;
+}
+
+.alertText {
+    text-align: center;
+    padding: 20px 0;
+    font-size: 16px;
+    font-weight: bold;
+    color: #1f2937;
+}
+

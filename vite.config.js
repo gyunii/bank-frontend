@@ -6,7 +6,7 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: 'http://localhost:8080',
+        target: 'http://localhost:8081',
         changeOrigin: true,
         secure: false,
       },
@@ -14,8 +14,8 @@ export default defineConfig({
   },
 })
 
-/*
-import { defineConfig } from 'vite'
+
+/*import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
 export default defineConfig({
@@ -32,5 +32,5 @@ export default defineConfig({
       },
     },
   },
-})
-*/
+})*/
+

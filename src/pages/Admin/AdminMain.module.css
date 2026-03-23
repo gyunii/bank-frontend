@@ -11,7 +11,7 @@
     color: #fff;
     display: flex;
     flex-direction: column;
-    padding: 20px 0;
+    padding: 15px 0;
 }
 
 .sidebarHeader {
@@ -28,7 +28,7 @@
 }
 
 .menuItem {
-    padding: 15px 20px;
+    padding: 13px 20px;
     cursor: pointer;
     transition: background-color 0.2s;
     font-size: 1rem;
@@ -103,10 +103,11 @@
 }
 
 .bottomMenu {
-    margin-top: auto; /* 사이드바 하단으로 밀어내기 */
+    margin-top: auto;
     border-top: 1px solid #4b545c;
-    padding-top: 10px;
+    margin-bottom: 10px;
 }
+
 .bottomMenu .menuItem {
     border-bottom: 1px solid #4b545c;
 }
@@ -116,7 +117,7 @@
     height: 1rem;
     margin-right: 1.5rem;
     object-fit: contain;
-    filter: brightness(0) invert(1); /* 흰색 아이콘으로 변경 */
+    filter: brightness(0) invert(1); 
     image-rendering: -webkit-optimize-contrast;
 }
 .navIcon {

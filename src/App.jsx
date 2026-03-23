@@ -29,9 +29,11 @@ function App() {
         
         {/* Admin 전용 페이지 */}
         <Route path="/AdminMain" element={<PrivateRoute allowedRoles={['admin']}><AdminMain /></PrivateRoute>} />
+
         
         {/* Member 전용 페이지 */}
         <Route path="/BankerWorkSpace" element={<PrivateRoute allowedRoles={['member']}><BankerWorkSpace /></PrivateRoute>} />
+
 
         {/* 테스트용 페이지 (개발용) */}
         <Route path="/test-modal" element={<ModalTestPage />} />

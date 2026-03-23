@@ -1,0 +1,207 @@
+/* 컴포넌트 메인 컨테이너 */
+.container {
+  max-width: 56rem; /* 896px */
+  margin: 0 auto;
+  background-color: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+  padding: 40px;
+  box-shadow: 0 1px 2px 0 rgba(0,0,0,0.05);
+  font-family: sans-serif;
+}
+
+.pageHeader {
+  margin-bottom: 32px;
+}
+
+.pageTitle {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #1f2937;
+  margin: 0;
+}
+
+.divider {
+  height: 1px;
+  background-color: #e5e7eb;
+  width: 100%;
+  margin-top: 16px;
+}
+
+/* 기본 정보 섹션 */
+.infoSection {
+  margin-bottom: 48px;
+}
+
+.sectionTitle {
+  font-size: 0.875rem;
+  font-weight: bold;
+  color: #374151;
+  margin-bottom: 16px;
+}
+
+.infoCard {
+  position: relative;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.75rem;
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.statusWrapper {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+}
+
+.statusSelect {
+  border: 1px solid #d1d5db;
+  border-radius: 0.25rem;
+  padding: 4px 8px;
+  font-size: 0.75rem;
+  color: #4b5563;
+  outline: none;
+  background-color: #f9fafb;
+}
+
+.profileIconWrapper {
+  margin-bottom: 12px;
+  background-color: #e0fcf6;
+  padding: 12px;
+  border-radius: 50%;
+}
+
+.userInfo {
+  text-align: center;
+}
+
+.welcomeText {
+  font-size: 1.125rem;
+  color: #1f2937;
+  margin: 0 0 4px 0;
+}
+
+.userName {
+  font-weight: 600;
+}
+
+.userEmail {
+  font-size: 0.875rem;
+  color: #6b7280;
+  margin: 0 0 12px 0;
+  letter-spacing: 0.025em;
+}
+
+.userRole {
+  background-color: #e0fcf6;
+  color: #00c09a;
+  padding: 4px 12px;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: bold;
+}
+
+/* 비밀번호 변경 섹션 */
+.passwordSection {
+  display: flex;
+  justify-content: center;
+}
+
+.passwordWrapper {
+  width: 100%;
+  max-width: 28rem; 
+}
+
+.passwordTitle {
+  font-size: 1rem;
+  font-weight: bold;
+  color: #1f2937;
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.inputGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.inputGroup label {
+  font-size: 0.75rem;
+  font-weight: bold;
+  color: #374151;
+}
+
+.inputGroup input {
+  border: 1px solid #d1d5db;
+  border-radius: 0.25rem;
+  padding: 12px;
+  font-size: 0.875rem;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.inputGroup input:focus {
+  border-color: #00c09a;
+}
+
+.messageWrapper {
+  height: 16px;
+}
+
+.errorMessage {
+  text-align: center;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #ef4444;
+  margin: 0;
+}
+
+.successMessage {
+  text-align: center;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #00c09a;
+  margin: 0;
+}
+
+.submitBtn {
+  width: 100%;
+  background-color: #00c09a;
+  color: white;
+  font-weight: bold;
+  padding: 14px;
+  border-radius: 9999px;
+  transition: background-color 0.2s;
+  border: none;
+  cursor: pointer;
+  margin-top: 8px;
+}
+
+.submitBtn:hover {
+  background-color: #00a884;
+}
+
+.modalConfirmText {
+  text-align: center;
+  padding: 20px 0;
+  font-size: 16px;
+  color: #1f2937;
+  font-weight: bold;
+}
+
+.modalSuccessText {
+  text-align: center;
+  padding: 20px 0;
+  font-size: 16px;
+  color: #1f2937;
+  font-weight: bold;
+}
