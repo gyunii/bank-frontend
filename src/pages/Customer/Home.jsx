@@ -9,7 +9,6 @@ import Counseling from '../../images/Home/Counseling.png';
 import House from '../../images/Home/House.png';
 import Loans from '../../images/Home/Loans.png';
 import Lock from '../../images/Home/Lock.png';
-import PiggyBank from '../../images/Home/PiggyBank.png';
 import RetirementPension from '../../images/Home/RetirementPension.png';
 import Transfer from '../../images/Home/Transfer.png';
 import Warning from '../../images/Home/Warning.png';
@@ -25,7 +24,6 @@ const Home = () => {
 
     // 각 섹션별 고정 데이터
     const fastTasks = [
-        { id: 1, title: '계좌 개설', icon: PiggyBank, isVisitRequired: false },
         { id: 2, title: '입/출금 및 이체', icon: Transfer, isVisitRequired: false },
         { id: 3, title: '체크카드 발급', icon: Card, isVisitRequired: true },
         { id: 4, title: '통장 비밀번호 재설정', icon: Lock, isVisitRequired: true },
