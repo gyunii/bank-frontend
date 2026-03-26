@@ -11,6 +11,7 @@ const MyPage = () => {
     const { user, loading } = useAuth();
     const navigate = useNavigate();
     const [activeTab, setActiveTab] = useState('accounts');
+    const [accounts, setAccounts] = useState([]);
 
     useEffect(() => {
         if (!loading && !user) {
@@ -19,10 +20,37 @@ const MyPage = () => {
         }
     }, [user, loading, navigate]);
 
+    useEffect(() => {
+        if (activeTab === 'accounts' && user) {
+            const fetchMyAccounts = async () => {
+                try {
+                    const response = await fetch('/api/account/list', {
+                        method: 'GET',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (data.result === 'SUCCESS') {
+                        setAccounts(data.accounts);
+                    } else {
+                        console.error("계좌 불러오기 실패:", data.message);
+                    }
+                } catch (error) {
+                    console.error("API 호출 중 에러 발생:", error);
+                }
+            };
+
+            fetchMyAccounts();
+        }
+    }, [activeTab, user]);
+
     if (loading) return <div>Loading...</div>;
     if (!user) return null;
 
-    console.log("User Info:", user); // 디버깅용 로그: 콘솔에서 user 객체 확인 가능
+    console.log("User Info:", user);
 
     // const maskResidentNumber = (residentNumber) => {
     //     if (!residentNumber) return '';
@@ -89,35 +117,47 @@ const MyPage = () => {
         </div>
     );
 
-    // 3. 계좌 관리 - 임시 데이터
-    const renderAccounts = () => {
-        const mockAccounts = [
-            { id: 1, name: 'ㅇㅇ예금(입출금)', isMain: true, number: '000-00000000-0', balance: '1,000,000 원' },
-            { id: 2, name: 'ㅇㅇ적금', isMain: false, number: '000-00000000-0', balance: '1,000,000 원' },
-            { id: 3, name: '주택청약', isMain: false, number: '000-00000000-0', balance: '1,000,000 원' },
-            { id: 4, name: '청년도약계좌', isMain: false, number: '000-00000000-0', balance: '5,000,000 원' },
-            { id: 5, name: '모임통장', isMain: false, number: '000-00000000-0', balance: '250,000 원' },
-        ];
+    // 계좌 유형 한글로 변환
+    const getAccountTypeName = (type) => {
+        switch(type) {
+            case 'DEMAND': return '입출금';
+            case 'DEPOSIT': return '예금';
+            case 'SAVINGS': return '적금';
+            default: return '계좌';
+        }
+    };
 
+    // 3. 계좌 관리
+    const renderAccounts = () => {
         return (
             <div className={styles.accountsWrapper}>
                 <h2 className={styles.sectionTitle}>계좌 조회</h2>
+                
                 <div className={styles.accountList}>
-                    {mockAccounts.map((account) => (
-                        <div key={account.id} className={styles.accountCard}>
-                            <div className={styles.accountInfo}>
-                                <div className={styles.accountNameRow}>
-                                    <span className={styles.accountName}>{account.name}</span>
-                                    {account.isMain && <span className={styles.mainBadge}>주계좌</span>}
-                                </div>
-                                <span className={styles.accountNumber}>{account.number}</span>
-                            </div>
-                            <div className={styles.accountActions}>
-                                <span className={styles.balance}>{account.balance}</span>
-                                <button className={styles.transferBtn}>이체</button>
-                            </div>
+                    {accounts.length === 0 ? (
+                        <div style={{ textAlign: 'center', padding: '40px', color: '#999' }}>
+                            보유하신 계좌가 없습니다.
                         </div>
-                    ))}
+                    ) : (
+                        accounts.map((account) => (
+                            <div key={account.id || account.accountId} className={styles.accountCard}>
+                                <div className={styles.accountInfo}>
+                                    <div className={styles.accountNameRow}>
+                                        {/* accountAlias가 있으면 그걸 띄우고, 없으면 accountType을 한글로 변환해서 띄움 */}
+                                        <span className={styles.accountName}>
+                                            {account.accountAlias || `기본 ${getAccountTypeName(account.accountType)}`}
+                                        </span>
+                                    </div>
+                                    <span className={styles.accountNumber}>{account.accountNumber}</span>
+                                </div>
+                                
+                                <div className={styles.accountActions}>
+                                    <span className={styles.balance}>{account.balance?.toLocaleString()} 원</span>
+                                    <button className={styles.transferBtn}>이체</button>
+                                </div>
+                            </div>
+                        ))
+                    )}
                 </div>
             </div>
         );
