@@ -109,11 +109,11 @@ const PinSetup = () => {
                 showAlert('인증이 완료되었습니다.');
                 setIsVerified(true);
             } else {
-                alert('인증번호가 일치하지 않습니다.');
+                showAlert('인증번호가 일치하지 않습니다.');
             }
         } catch (error) {
             console.error('인증번호 확인 오류:', error);
-            alert('인증번호 확인 중 오류가 발생했습니다.');
+            showAlert('인증번호 확인 중 오류가 발생했습니다.');
         } finally {
             setIsLoading(false); // 로딩 종료
         }
@@ -140,7 +140,6 @@ const PinSetup = () => {
         else if (step === 3) setConfirmPin(prev => prev.slice(0, -1));
     };
 
-    // 핀 번호 6자리가 다 입력되면 자동으로 넘어감
     useEffect(() => {
         if (step === 2 && pin.length === 6) {
             setTimeout(() => setStep(3), 300);
@@ -194,7 +193,7 @@ const PinSetup = () => {
                 setTimeout(() => setConfirmPin(''), 800);
             }
         }
-    }, [confirmPin, pin, step, phone]); // phone을 의존성 배열에 추가해야 안전합니다.
+    }, [confirmPin, pin, step, phone]);
 
     // 보안 키패드 배열
     const keypadLayout = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '', '0', 'del'];
