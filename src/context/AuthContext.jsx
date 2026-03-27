@@ -32,7 +32,10 @@ export const AuthProvider = ({ children }) => {
                             userType: data.userType, // 백엔드에서 userType을 보내줌
                             email: data.email, 
                             name: data.name, 
-                            residentNumber: data.residentNumber 
+                            residentNumber: data.residentNumber,
+                            phone: data.phone,
+                            age : data.age,
+                            grade : data.grade
                         });
                     }
                 } else {

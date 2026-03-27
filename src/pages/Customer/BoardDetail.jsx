@@ -1,16 +1,52 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useParams } from 'react-router-dom'; // useParams 추가
 import styles from './Board.module.css';
+import Loading from '../../components/common/Loading'; // 로딩 컴포넌트가 있다면 활용
 
 const BoardDetail = () => {
     const navigate = useNavigate();
-    
-    // API 대신 화면에 보여줄 가짜(Mock) 상세 데이터
-    const mockArticle = {
-        title: "[공지] 일부 참가기관 디지털금융영업부 일시중단 안내",
-        date: "2026.02.27",
-        content: `항상, 저희 BANKSCOPE를 이용해주시는 고객님께 깊은 감사의 말씀을 드립니다.\n\n시스템 안정화 및 서비스 품질 향상을 위한 정기 점검으로 인하여\n일부 참가기관의 디지털금융영업부 업무가 일시 중단될 예정입니다.\n\n고객 여러분의 너른 양해를 부탁드립니다.\n감사합니다.`
-    };
+    const { id } = useParams(); // App.js 라우터 설정에 따라 'id' 혹은 'boardId'로 받음
+
+    const [article, setArticle] = useState(null);
+    const [isLoading, setIsLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchArticle = async () => {
+            setIsLoading(true);
+            try {
+                const response = await fetch(`/api/board/?boardId=${id}`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                });
+
+                const data = await response.json();
+
+                if (data.result === 'SUCCESS') {
+                    setArticle(data.article);
+                } else {
+                    alert('존재하지 않는 게시글입니다.');
+                    navigate(-1);
+                }
+            } catch (error) {
+                console.error('상세 페이지 로딩 에러:', error);
+                alert('데이터를 불러오는 중 오류가 발생했습니다.');
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        if (id) {
+            fetchArticle();
+        }
+    }, [id, navigate]);
+
+    // 로딩 중일 때 표시
+    if (isLoading) return <div className={styles.container}>데이터를 불러오는 중입니다...</div>;
+
+    // 데이터가 없을 때 표시
+    if (!article) return null;
 
     return (
         <div className={styles.container}>
@@ -18,22 +54,42 @@ const BoardDetail = () => {
                 <div className={styles.detailHeader}>
                     <div className={styles.detailRow}>
                         <div className={styles.detailLabel}>제목</div>
-                        <div className={styles.detailValue}>{mockArticle.title}</div>
+                        <div className={styles.detailValue}>{article.title}</div>
                     </div>
                     <div className={styles.detailRow}>
                         <div className={styles.detailLabel}>등록일</div>
-                        <div className={styles.detailValue}>{mockArticle.date}</div>
+                        <div className={styles.detailValue}>
+                            {article.createdAt ? article.createdAt.split('T')[0].replaceAll('-', '.') : '-'}
+                        </div>
+                    </div>
+                    {/* 조회수가 필요하다면 추가 */}
+                    <div className={styles.detailRow}>
+                        <div className={styles.detailLabel}>조회수</div>
+                        <div className={styles.detailValue}>{article.viewCount}</div>
+                    </div>
+                    <div className={styles.detailRow}>
+                        <div className={styles.detailLabel}>작성자</div>
+                        <div className={styles.detailValue}>
+                            {article.boardType === "notice" ? "새소식 관리자" : "이벤트 관리자"}
+                        </div>
                     </div>
                 </div>
 
                 <div className={styles.detailContent}>
-                    {mockArticle.content.split('\n').map((line, idx) => (
-                        <React.Fragment key={idx}>{line}<br/></React.Fragment>
+                    {article.content && article.content.split('\n').map((line, idx) => (
+                        <React.Fragment key={idx}>
+                            {line}
+                            <br/>
+                        </React.Fragment>
                     ))}
                 </div>
-
                 <div className={styles.btnArea}>
-                    <button className={styles.listBtn} onClick={() => navigate(-1)}>목록</button>
+                    <button
+                        className={styles.listBtn}
+                        onClick={() => navigate(`/board/${article.boardType}`)}
+                    >
+                        목록
+                    </button>
                 </div>
             </div>
         </div>

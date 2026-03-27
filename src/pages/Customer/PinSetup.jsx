@@ -1,11 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React, {useState, useEffect, useRef} from 'react';
 import { useNavigate } from 'react-router-dom';
 import styles from './PinSetup.module.css';
+import Loading from '../../components/common/Loading';
+import CustomModal from '../../components/common/CustomModal';
 
 const PinSetup = () => {
     const navigate = useNavigate();
     const [step, setStep] = useState(1);
-    
+
     const [name, setName] = useState('');
     const [rrnFirst, setRrnFirst] = useState('');
     const [rrnSecond, setRrnSecond] = useState('');
@@ -13,6 +15,7 @@ const PinSetup = () => {
     const [verifyCode, setVerifyCode] = useState('');
     const [isCodeSent, setIsCodeSent] = useState(false);
     const [isVerified, setIsVerified] = useState(false);
+    const [isLoading, setIsLoading] = useState(false); // 로딩 상태 추가
 
     const [pin, setPin] = useState('');
     const [confirmPin, setConfirmPin] = useState('');
@@ -22,16 +25,104 @@ const PinSetup = () => {
 
     const isFormFilled = name.trim() !== '' && rrnFirst.length === 6 && rrnSecond.length === 7 && isValidPhone;
 
+    const [modalConfig, setModalConfig] = useState({
+        isOpen: false,
+        message: '',
+        onConfirm: null
+    });
+    const modalActionHandled = useRef(false);
+
+    const showAlert = (message, callback = null) => {
+        modalActionHandled.current = false; // 핸들러 리셋
+        setModalConfig({
+            isOpen: true,
+            message: message,
+            onConfirm: callback // 확인 버튼 클릭 시 실행할 함수 (필요할 때만 사용)
+        });
+    };
+    const handleModalClose = () => {
+        if (modalActionHandled.current) return;
+        modalActionHandled.current = true;
+        setModalConfig(prev => ({ ...prev, isOpen: false }));
+        if (modalConfig.onConfirm) {
+            modalConfig.onConfirm();
+        }
+    };
     // 1단계 로직
-    const handleSendCode = () => setIsCodeSent(true);
-    const handleVerifyCode = () => {
-        if (verifyCode === '1234') setIsVerified(true);
+    const handleSendCode = async () => {
+        if (!isFormFilled) {
+            showAlert('이름, 주민등록번호, 휴대폰 번호를\n모두 올바르게 입력해주세요.');
+            return;
+        }
+
+        setIsLoading(true);
+        try {
+            const response = await fetch('/api/sms/send', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ phone }),
+            });
+            const data = await response.json();
+
+            switch (data.result) {
+                case 'SUCCESS':
+                    showAlert('인증번호가 전송되었습니다.');
+                    setIsCodeSent(true);
+                    break;
+                case 'FAILURE':
+                    showAlert('인증번호 전송에 실패했습니다.\n번호를 다시 확인해주세요.');
+                    break;
+                case 'FAILURE_SESSION' :
+                    showAlert('세션이 만료되 었습니다. 로그인 후 다시 시도해주세요.');
+                    break;
+                case 'FAILURE_NOT_SAME_PHONE' :
+                    showAlert('전화번호가 일치하지 않습니다.\n다시 시도해주세요.');
+                    break;
+                default:
+                    showAlert('서버 오류가 발생했습니다.\n잠시 후 다시 시도해주세요.');
+                    break;
+            }
+        } catch (error) {
+            console.error('전송 에러:', error);
+            showAlert('인증번호 전송 중 오류가 발생했습니다.');
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const handleVerifyCode = async () => {
+        if (verifyCode.length === 0) {
+            alert('인증번호를 입력해주세요.');
+            return;
+        }
+        setIsLoading(true); // 로딩 시작
+        try {
+            const response = await fetch('/api/sms/verify', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ phone, code: verifyCode }),
+            });
+            const data = await response.json();
+            if (data.result === 'SUCCESS') {
+                showAlert('인증이 완료되었습니다.');
+                setIsVerified(true);
+            } else {
+                alert('인증번호가 일치하지 않습니다.');
+            }
+        } catch (error) {
+            console.error('인증번호 확인 오류:', error);
+            alert('인증번호 확인 중 오류가 발생했습니다.');
+        } finally {
+            setIsLoading(false); // 로딩 종료
+        }
     };
 
     // 단계 전환 로직
     const handleNextStep = () => {
         if (step === 1 && isVerified) setStep(2);
-        if (step === 4) navigate('/My'); 
+        else if (step === 4) navigate('/My');
     };
 
     // 2, 3단계: 키패드 입력 로직
@@ -56,16 +147,54 @@ const PinSetup = () => {
         }
     }, [pin, step]);
 
+    // 3단계: 핀 번호 확인 및 서버 최종 등록 로직
     useEffect(() => {
+        // 서버에 핀 번호를 저장하는 내부 비동기 함수
+        const registerPinToServer = async () => {
+            setIsLoading(true); // 로딩 시작
+            try {
+                // 요청하신 형식: /api/pin/?pin=123456 (POST 방식)
+                const response = await fetch(`/api/pin/?pin=${confirmPin}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    // 필요한 경우 body에 추가 정보를 담을 수 있습니다.
+                    body: JSON.stringify({ phone: phone }),
+                });
+
+                const data = await response.json();
+
+                if (data.result === 'SUCCESS') {
+                    setStep(4); // 성공 시 4단계(완료)로 이동
+                } else {
+                    showAlert('핀 번호 등록에 실패했습니다.\n다시 시도해주세요.');
+                    setConfirmPin('');
+                    setPin('');
+                    setStep(2); // 실패 시 2단계(번호 입력)로 리셋
+                }
+            } catch (error) {
+                console.error('핀 등록 통신 에러:', error);
+                showAlert('서버와 통신 중 오류가 발생했습니다.');
+            } finally {
+                setIsLoading(false); // 로딩 종료
+            }
+        };
+
+        // 조건: 3단계이고, 입력한 핀 번호가 6자리일 때 실행
         if (step === 3 && confirmPin.length === 6) {
             if (pin === confirmPin) {
-                setTimeout(() => setStep(4), 300);
+                // 1차 비밀번호와 2차 확인 번호가 일치하면 서버로 전송
+                setTimeout(() => {
+                    registerPinToServer();
+                }, 300);
             } else {
+                // 일치하지 않으면 에러 메시지 출력 후 초기화
                 setPinError('핀 번호가 일치하지 않습니다. 다시 입력해주세요.');
                 setTimeout(() => setConfirmPin(''), 800);
             }
         }
-    }, [confirmPin, pin, step]);
+    }, [confirmPin, pin, step, phone]); // phone을 의존성 배열에 추가해야 안전합니다.
 
     // 보안 키패드 배열
     const keypadLayout = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '', '0', 'del'];
@@ -83,12 +212,13 @@ const PinSetup = () => {
 
     return (
         <div className={styles.pageContainer}>
+            {isLoading && <Loading message="인증 처리 중..." />}
             <div className={styles.contentBox}>
-                
+
                 <div className={styles.sidebar}>
                     <h2 className={styles.logoTitle}>BANKSCOPE</h2>
                     <h3 className={styles.pageTitle}>핀 번호 발급</h3>
-                    
+
                     <ul className={styles.stepList}>
                         {[
                             { id: 1, text: '본인 확인' },
@@ -105,12 +235,12 @@ const PinSetup = () => {
                 </div>
 
                 <div className={styles.mainContent}>
-                    
+
                     {step === 1 && (
                         <div className={styles.stepContainer}>
                             <h3 className={styles.sectionTitle}>본인 인증 절차가 필요합니다.</h3>
-                            <p className={styles.sectionSubtitle}>SMS 인증 구현</p>
-                            
+                            <p className={styles.sectionSubtitle}>SMS 인증</p>
+
                             <div className={styles.formGroup}>
                                 <label>이름</label>
                                 <input type="text" placeholder="이름 입력" className={styles.input} value={name} onChange={(e) => setName(e.target.value)} />
@@ -126,18 +256,15 @@ const PinSetup = () => {
                             <div className={styles.formGroup}>
                                 <label>휴대폰 번호</label>
                                 <div className={styles.phoneWrapper}>
-                                    <select className={styles.select}>
-                                        <option>SKT</option><option>KT</option><option>LG U+</option><option>알뜰폰</option>
-                                    </select>
-                                    <input 
-                                        type="text" 
-                                        placeholder="- 없이 010부터 입력" 
-                                        className={styles.input} 
-                                        value={phone} 
+                                    <input
+                                        type="text"
+                                        placeholder="- 없이 010부터 입력"
+                                        className={styles.input}
+                                        value={phone}
                                         maxLength={11}
-                                        onChange={(e) => setPhone(e.target.value.replace(/[^0-9]/g, ''))} 
+                                        onChange={(e) => setPhone(e.target.value.replace(/[^0-9]/g, ''))}
                                     />
-                                    <button className={`${styles.actionBtn} ${!isFormFilled ? styles.disabledActionBtn : ''}`} onClick={handleSendCode} disabled={!isFormFilled || isVerified}>
+                                    <button className={`${styles.actionBtn} ${!isFormFilled ? styles.disabledActionBtn : ''}`} onClick={handleSendCode} disabled={!isFormFilled || isVerified || isLoading}>
                                         {isCodeSent ? '재전송' : '인증번호 전송'}
                                     </button>
                                 </div>
@@ -149,10 +276,10 @@ const PinSetup = () => {
 
                             {isCodeSent && (
                                 <div className={styles.formGroup}>
-                                    <label>인증번호 <span style={{fontSize: '12px', color: '#888'}}>(임시: 1234)</span></label>
+                                    <label>인증번호</label>
                                     <div className={styles.verifyWrapper}>
                                         <input type="text" placeholder="인증번호 입력" className={styles.input} value={verifyCode} onChange={(e) => setVerifyCode(e.target.value.replace(/[^0-9]/g, ''))} disabled={isVerified} />
-                                        <button className={`${styles.actionBtn} ${isVerified ? styles.verifiedBtn : ''}`} onClick={handleVerifyCode} disabled={isVerified || verifyCode.length === 0}>
+                                        <button className={`${styles.actionBtn} ${isVerified ? styles.verifiedBtn : ''}`} onClick={handleVerifyCode} disabled={isVerified || verifyCode.length === 0 || isLoading}>
                                             {isVerified ? '인증완료' : '인증 확인'}
                                         </button>
                                     </div>
@@ -224,8 +351,21 @@ const PinSetup = () => {
 
                 </div>
             </div>
+            <CustomModal
+                isOpen={modalConfig.isOpen}
+                onClose={handleModalClose}
+                title="안내"
+                onConfirm={handleModalClose}
+                confirmText="확인"
+            >
+                <div style={{ padding: '20px', textAlign: 'center', fontSize: '1.2rem', color: '#333', whiteSpace: 'pre-line', lineHeight: '1.5' }}>
+                    {modalConfig.message}
+                </div>
+            </CustomModal>
         </div>
     );
+
 };
+
 
 export default PinSetup;

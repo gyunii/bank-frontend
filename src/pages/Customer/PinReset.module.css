@@ -282,7 +282,7 @@
     .phoneWrapper, .verifyWrapper {
         flex-wrap: wrap;
     }
-    
+
     .phoneWrapper .actionBtn, .verifyWrapper .actionBtn {
         flex: 1 1 100%;
         margin-top: 10px;

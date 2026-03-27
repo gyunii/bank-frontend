@@ -51,7 +51,7 @@ const Home = () => {
         const fetchBoardData = async () => {
             setIsLoadingBoard(true);
             try {
-                const response = await fetch(`/api/board?boardType=${activeTab}`, {
+                const response = await fetch(`/api/board/articles?boardType=${activeTab}`, {
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',
@@ -232,13 +232,19 @@ const Home = () => {
                                 <ul className={styles.newsList}>
                                     {boardList.length > 0 ? (
                                         boardList.map((board) => (
-                                            <li 
-                                                key={board.id}
-                                                onClick={() => navigate(`/board/detail/${board.id}`)}
+                                            /*<li
+                                                key={board.boardId} // board.id -> board.boardId로 수정
+                                                onClick={() => navigate(`/board/detail/${board.boardId}`)} // id -> boardId
                                                 style={{cursor: 'pointer'}}
-                                            >
-                                                <span className={styles.newsTitle}>• {board.title}</span>
-                                                <span className={styles.newsDate}>{board.date}</span>
+                                            >*/
+                                             <li
+                                                    key={board.boardId} // board.id -> board.boardId로 수정
+                                                    onClick={() => navigate(`/board/detail/${board.boardId}`)}                                                    style={{cursor: 'pointer'}}
+                                             >
+                                             <span className={styles.newsTitle}>• {board.title}</span>
+                                             <span className={styles.newsDate}>
+                                                    {board.createdAt ? board.createdAt.split('T')[0].replaceAll('-', '.') : ''}
+                                             </span>
                                             </li>
                                         ))
                                     ) : (

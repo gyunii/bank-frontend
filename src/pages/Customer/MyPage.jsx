@@ -4,7 +4,8 @@ import { useNavigate } from 'react-router-dom';
 import styles from './MyPage.module.css';
 import profileImg from "../../images/Mypage/Profile.png"
 import lockImg from "../../images/Mypage/Lock.png"
-import otpImg from "../../images/Mypage/Mobile.png"
+/*import otpImg from "../../images/Mypage/Mobile.png"*/
+import lockBlackImg from "../../images/Mypage/LockRe.png"
 import arrowImg from "../../images/Mypage/ArrowRight.png"
 
 const MyPage = () => {
@@ -107,11 +108,12 @@ const MyPage = () => {
         <div className={styles.securityWrapper}>
             <div className={styles.securityCard} onClick={() => navigate('/PinSetup')} style={{ cursor: 'pointer' }}>
                 <img src={lockImg} alt="Lock" className={styles.securityIconImg} />
-                <span className={styles.securityTitle}>핀 번호관리</span>
+                <span className={styles.securityTitle}>핀번호 생성</span>
             </div>
-            <div className={styles.securityCard}>
-                <img src={otpImg} alt="OTP" className={styles.securityIconImg} />
-                <span className={styles.securityTitle}>디지털 OTP 관리</span>
+            <div className={styles.securityCard} onClick={() => navigate('/PinReset')} style={{ cursor: 'pointer' }}>
+                {/*<img src={otpImg} alt="OTP" className={styles.securityIconImg} />*/}
+                <img src={lockBlackImg} alt="OTP" className={styles.securityIconImg} />
+                <span className={styles.securityTitle}>핀번호 재설정</span>
             </div>
         </div>
     );
