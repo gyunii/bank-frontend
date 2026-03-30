@@ -21,11 +21,7 @@ const AdminMain = () => {
 
     const menuItems = [
         { id: 'dashboard', label: '대시보드' },     
-        { id: 'bank', label: '은행 관리' },
-        { id: 'deposit', label: '예금 상품 관리' },
-        { id: 'savings', label: '적금 상품 관리' },
-        { id: 'loan', label: '대출 상품 관리' },
-        { id: 'rates', label: '금리 등록' },
+        { id: 'bank', label: '금융 상품 관리' },
         { id: 'users', label: '사용자 관리' },
         { id: 'news', label: '새소식 관리' },    
         { id: 'events', label: '이벤트 관리' }, 
@@ -53,23 +49,13 @@ const AdminMain = () => {
         case 'dashboard':
             return <div className={styles.card}><Admin_dashboard /></div>;
         case 'bank':
-            return <div className={styles.card}><h3>은행 관리</h3><p>은행 설정 페이지 준비 중...</p></div>;
-        case 'deposit':
-            return <div className={styles.card}><h3>예금 상품 관리</h3><p>예금 상품 목록...</p></div>;
-        case 'savings':
-            return <div className={styles.card}><h3>적금 상품 관리</h3><p>적금 상품 목록...</p></div>;
-        case 'loan':
-            return <div className={styles.card}><h3>대출 상품 관리</h3><p>대출 상품 목록...</p></div>;
-        case 'rates':
-            return <div className={styles.card}><h3>금리 등록</h3><p>금리 설정 페이지...</p></div>;
+            return <div className={styles.card}><h3>금융 상품 관리</h3><p>상품 준비중...</p></div>;
         case 'users':
             return <div className={styles.card}><UserManagement /></div>;
         case 'news':
             return <div className={styles.card}><BoardManagement type="news" title="새소식"/></div>;
         case 'events':
             return <div className={styles.card}><BoardManagement type="events" title="이벤트" /></div>;
-            
-        // ★ 'info' 탭일 때 AdminMyPage를 보여주도록 추가
         case 'info':
             return <AdminMyPage />;
             
