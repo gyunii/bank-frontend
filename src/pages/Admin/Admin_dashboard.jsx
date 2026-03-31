@@ -27,13 +27,12 @@ const HOURLY = [
 ];
 
 const LEVEL_COLORS = {
-  1: { bg: "#e8f5e9", text: "#2e7d32", border: "#a5d6a7" },
-  2: { bg: "#e3f2fd", text: "#1565c0", border: "#90caf9" },
-  3: { bg: "#fff8e1", text: "#f57f17", border: "#ffe082" },
-  4: { bg: "#fce4ec", text: "#c62828", border: "#f48fb1" },
-  5: { bg: "#ede7f6", text: "#4527a0", border: "#b39ddb" },
+  1: { bg: "#f0fdf4", text: "#166534", border: "#bbf7d0" }, // 아주 연한 민트 (L1)
+  2: { bg: "#dcfce7", text: "#15803d", border: "#86efac" }, // 연한 그린 (L2)
+  3: { bg: "#bbf7d0", text: "#166534", border: "#4ade80" }, // 중간 그린 (L3)
+  4: { bg: "#86efac", text: "#065f46", border: "#22c55e" }, // 진한 민트그린 (L4)
+  5: { bg: "#059669", text: "#1e1e1e", border: "#047857" }, // 딥 에메랄드 (L5)
 };
-
 const maxHourly = Math.max(...HOURLY.map(d => d.total));
 
 export default function Admin_dashboard() {
@@ -117,11 +116,11 @@ export default function Admin_dashboard() {
       {/* 헤더 */}
       <header className={styles.header}>
         <div className={styles.logo}>
-          <div style={{ width: 30, height: 30, borderRadius: 8, background: "linear-gradient(135deg,#009A83,#007f6b)", display: "flex", alignItems: "center", justifyContent: "center", color: "#fff" }}>🏦</div>
-          <span><span style={{ color: "#009A83" }}>SmartTeller</span> 창구 관리 시스템</span>
+
+          <span> 창구 관리 시스템</span>
         </div>
         <div style={{ fontSize: 14, color: "#64748b", fontWeight: 600, fontVariantNumeric: "tabular-nums" }}>
-          🕒 {timeStr}
+          {timeStr}
         </div>
       </header>
 
@@ -129,28 +128,28 @@ export default function Admin_dashboard() {
         {/* Top: 실시간 긴급 지표 & 공지 전송 */}
         <div className={styles.topRow}>
           <div className={`${styles.kpiCard} ${styles.kpiClickable}`} onClick={() => setIsTransferModalOpen(true)}>
-            <div className={styles.kpiLabel}>🚨 전체 대기 인원 </div>
+            <div className={styles.kpiLabel}>전체 대기 인원 </div>
             <div className={styles.kpiValue} style={{ color: "#009A83" }}>
-              {totalWaiting} <span style={{ fontSize: 16, color: "#64748b" }}>명</span>
+              {totalWaiting} <span style={{ fontSize: 16, color: "#009A83" }}>명</span>
             </div>
           </div>
 
           <div className={styles.kpiCard}>
-            <div className={styles.kpiLabel}>🟢 처리중 창구 현황</div>
-            <div className={styles.kpiValue} style={{ color: "#333" }}>
-              {activeTellersCount} <span style={{ fontSize: 16, color: "#64748b" }}>개</span>
+            <div className={styles.kpiLabel}>처리중 창구 현황</div>
+            <div className={styles.kpiValue} style={{ color: "#009A83" }}>
+              {activeTellersCount} <span style={{ fontSize: 16, color: "#009A83" }}>개</span>
             </div>
           </div>
 
           <div className={styles.kpiCard}>
-            <div className={styles.kpiLabel}>📊 오늘 총 처리 건수</div>
-            <div className={styles.kpiValue} style={{ color: "#3b82f6" }}>
-              {totalProcessedToday} <span style={{ fontSize: 16, color: "#64748b" }}>건</span>
+            <div className={styles.kpiLabel}>오늘 총 처리 건수</div>
+            <div className={styles.kpiValue} style={{ color: "#009A83" }}>
+              {totalProcessedToday} <span style={{ fontSize: 16, color: "#009A83" }}>건</span>
             </div>
           </div>
 
           <div className={`${styles.kpiCard} ${styles.noticeWrap}`}>
-            <div className={styles.kpiLabel}>📢 전 창구 공지 전송</div>
+            <div className={styles.kpiLabel}>&nbsp;&nbsp;&nbsp;전 창구 공지 전송</div>
             <div className={styles.noticeInputGroup}>
               <input 
                 type="text" 
@@ -170,7 +169,7 @@ export default function Admin_dashboard() {
           {/* 좌측: 직원별 창구 모니터링 */}
           <div className={styles.panel}>
             <div className={styles.panelTitle}>
-              <span style={{ color: "#22c55e" }}>●</span> 실시간 창구 모니터링
+              <span style={{ color: "#22c55e" }}></span> 실시간 창구 모니터링
             </div>
             {tellers.map(t => {
               const isDelayed = t.elapsedTime >= 1200;
@@ -193,11 +192,11 @@ export default function Admin_dashboard() {
                     
                     <div className={styles.tStatusWrapper}>
                       {t.status === "active" ? (
-                        <span className={styles.tStatusBadge} style={{ background: isDelayed ? "#fee2e2" : "#dcfce7", color: isDelayed ? "#ef4444" : "#166534" }}>
-                          {isDelayed ? "⚠️ 업무 지연" : "● 업무중"}
+                        <span className={styles.tStatusBadge} style={{ background: isDelayed ? "#fee2e2" : "#dcfce7", color: isDelayed ? "" : "#166534" }}>
+                          {isDelayed ? "️업무 지연" : "업무중"}
                         </span>
                       ) : (
-                        <span className={styles.tStatusBadge} style={{ background: "#f1f5f9", color: "#64748b" }}>○ 대기중</span>
+                        <span className={styles.tStatusBadge} style={{ background: "#f1f5f9", color: "#64748b" }}>대기중</span>
                       )}
                       <span className={styles.tStatsInfo}>| 처리 {t.processed}건 · 대기 {t.queue}명</span>
                     </div>
@@ -210,7 +209,7 @@ export default function Admin_dashboard() {
           {/* 우측: 현황 차트 */}
           <div className={styles.panel}>
             <div className={styles.panelTitle}>
-              <span style={{ color: "#009A83" }}>▐</span> 시간대별 예상 혼잡도
+           시간대별 예상 혼잡도
             </div>
             <div className={styles.chartContainer}>
               <div className={styles.chartBars}>
@@ -218,7 +217,7 @@ export default function Admin_dashboard() {
                   const isNow = d.h === "14";
                   return (
                     <div key={i} className={styles.barCol}>
-                      <div style={{ fontSize: 11, color: isNow ? "#009A83" : "#94a3b8", fontWeight: isNow ? 800 : 500, marginBottom: 4 }}>{d.total}</div>
+                      <div style={{ fontSize: 11, color: isNow ? "#031714" : "#94a3b8", fontWeight: isNow ? 800 : 500, marginBottom: 4 }}>{d.total}</div>
                       <div className={styles.barFill} style={{ 
                         height: `${(d.total / maxHourly) * 100}%`,
                         background: isNow ? "linear-gradient(180deg, #009A83, #007f6b)" : "#e2e8f0"
@@ -258,11 +257,11 @@ export default function Admin_dashboard() {
         {/* Bottom: AI 예측 대기열 */}
         <div className={styles.panel}>
           <div className={styles.panelTitle}>
-            <span style={{ color: "#a855f7" }}>◆</span> AI 예측 대기열
+             AI 예측 대기열
           </div>
           <div className={styles.aiGrid}>
             {top5Queue.map((q) => (
-              <div key={q.id} className={styles.aiCard} style={{ borderTop: q.isIssue ? "3px solid #f59e0b" : "3px solid #cbd5e1" }}>
+              <div key={q.id} className={styles.aiCard} style={{ borderTop: q.isIssue ? "3px solid #009d84" : "3px solid #cbd5e1" }}>
                 <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}>
                   <span style={{ fontSize: 14, fontWeight: 800 }}>{q.id}</span>
                   <span style={{ fontSize: 12, fontWeight: 700, color: "#009A83" }}>예상 {q.expectedMins}분</span>
