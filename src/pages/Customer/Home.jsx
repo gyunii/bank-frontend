@@ -13,6 +13,7 @@ import RetirementPension from '../../images/Home/RetirementPension.png';
 import Transfer from '../../images/Home/Transfer.png';
 import Warning from '../../images/Home/Warning.png';
 import styles from './Home.module.css';
+import ChatBot from "./ChatBot";
 
 const Home = () => {
     const navigate=  useNavigate();
@@ -296,6 +297,8 @@ const Home = () => {
                     </div>
                 </div>
             )}
+
+            <ChatBot />
         </>
     );
 };
