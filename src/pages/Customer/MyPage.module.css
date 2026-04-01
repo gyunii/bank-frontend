@@ -220,6 +220,9 @@
   cursor: pointer;
   transition: all 0.2s;
 }
+.securityCard:hover {
+  transform: scale(1.1);
+}
 
 .securityIconImg {
   width: 64px;

@@ -1,4 +1,4 @@
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import './App.css';
 import Layout from "./components/Layout";
 import Home from "./pages/Customer/Home.jsx";
@@ -21,8 +21,12 @@ function App() {
   return (
     <Layout>
       <Routes>
-        <Route path="/" element={<Kiosk/>} />
-        <Route path="/Main" element={<Home />} />
+        {/* /Main 등 잘못된 경로 접근 시 Home(/)으로 리다이렉트 */}
+        <Route path="/Main" element={<Navigate to="/" replace />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
+
+        <Route path="/Kiosk" element={<Kiosk/>} />
+        <Route path="/" element={<Home />} />
         <Route path="/Login" element={<Login />} />
         <Route path="/Register" element={<Register />} />
         

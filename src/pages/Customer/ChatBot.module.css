@@ -38,20 +38,25 @@
   overflow: hidden;
   animation: slideIn 0.3s ease;
 }
-
+.chatCloseBtn  span {
+  color: #ffff;
+}
+.sendBtn span {
+  filter: invert(100%);
+}
 @keyframes slideIn {
   from { opacity: 0; transform: translateY(20px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
 .chatHeader {
-  background-color: #F7E389;
+  background-color: #009a83;
   padding: 15px;
   display: flex;
   justify-content: space-between;
   align-items: center;
   font-weight: bold;
-  color: #333;
+  color: #ffffff;
 }
 
 .chatCloseBtn {
@@ -88,8 +93,8 @@
 
 .customerMsg {
   align-self: flex-end;
-  background-color: #F7E389;
-  color: #333;
+  background-color: #009A83;
+  color: #ffffff;
   border-radius: 15px 15px 0 15px;
 }
 
@@ -110,7 +115,7 @@
 }
 
 .sendBtn {
-  background-color: #F7E389;
+  background-color: #009A83;
   border: none;
   width: 40px;
   height: 40px;

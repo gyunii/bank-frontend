@@ -10,7 +10,7 @@ const Navbar = () => {
     return (
         <nav className={styles.navbar}>
             <div className={styles.leftGroup}>
-                <div className={styles.brand}><Link to="/Main">BankScope</Link></div>
+                <div className={styles.brand}><Link to="/">BankScope</Link></div>
             </div>
 
             <ul className={styles.navLinks}>

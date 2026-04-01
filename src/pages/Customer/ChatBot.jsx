@@ -34,7 +34,7 @@ const ChatBot = () => {
         <div className={styles.chatWindow}>
           <div className={styles.chatHeader}>
             <span>💬 은행원 상담 채팅</span>
-            <button className={styles.chatCloseBtn} onClick={toggleChat}>✕</button>
+            <button className={styles.chatCloseBtn} onClick={toggleChat}><span>✕</span></button>
           </div>
 
           <div className={styles.chatBody}>
@@ -65,7 +65,7 @@ const ChatBot = () => {
                 }
               }}
             />
-            <button className={styles.sendBtn} onClick={onSend}>➤</button>
+            <button className={styles.sendBtn} onClick={onSend}><span>➤</span></button>
           </div>
         </div>
       )}
