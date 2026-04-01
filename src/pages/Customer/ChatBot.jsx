@@ -33,7 +33,7 @@ const ChatBot = () => {
       {isOpen && (
         <div className={styles.chatWindow}>
           <div className={styles.chatHeader}>
-            <span>💬 고객 상담 채팅</span>
+            <span>💬 은행원 상담 채팅</span>
             <button className={styles.chatCloseBtn} onClick={toggleChat}>✕</button>
           </div>
 
