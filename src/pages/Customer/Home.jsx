@@ -17,6 +17,8 @@ import ChatBot from "./ChatBot";
 
 const Home = () => {
     const navigate=  useNavigate();
+    const [isTermsModalOpen, setIsTermsModalOpen] = useState(false);
+const [termsType, setTermsType] = useState(''); // 'loan' 또는 'subscription'
     
     //유저 상태 관리
     const [user, setUser] = useState(null);
@@ -119,6 +121,14 @@ const Home = () => {
         let message = '';
 
         switch (title) {
+            case '대출(전세/주택담보)':
+                setTermsType('loan');
+                setIsTermsModalOpen(true);
+                return;
+            case '청약저축 가입':
+                setTermsType('subscription');
+                setIsTermsModalOpen(true);
+                return;
             case '입/출금 및 이체':
                 navigate("/my");
                 return;
@@ -375,9 +385,65 @@ const Home = () => {
                 </div>
             )}
 
+            {isTermsModalOpen && (
+                <div className={styles.modalBackdrop} onClick={() => setIsTermsModalOpen(false)}>
+                    <div className={styles.modalContainer} onClick={(e) => e.stopPropagation()} style={{ width: '90%', maxWidth: '500px' }}>
+                        <h2 className={styles.modalTitle} style={{ textAlign: 'left', marginBottom: '15px' }}>
+                            {termsType === 'loan' ? '대출 상품 가입 약관' : '주택청약종합저축 가입 약관'}
+                        </h2>
+                        
+                        <div className={styles.termsContentBox}>
+                            {termsType === 'loan' ? (
+                                <>
+                                    <strong>제 1조 (목적)</strong><br />
+                                    본 약관은 은행과 대출 신청인 간의 전세자금 및 주택담보대출 조건 및 절차를 규정함을 목적으로 합니다.<br /><br />
+                                    
+                                    <strong>제 2조 (대출금리 및 상환)</strong><br />
+                                    ① 대출금리는 기준금리에 가산금리를 더하여 산정되며, 우대금리 조건(급여이체, 카드실적 등)에 따라 변동될 수 있습니다.<br />
+                                    ② 만기일시상환, 원리금균등분할상환 중 고객이 선택한 방식으로 매월 지정된 결제일에 상환합니다.<br /><br />
+
+                                    <strong>제 3조 (지연배상금 및 기한의 이익 상실)</strong><br />
+                                    ① 이자 지급 또는 원금 상환을 지체한 경우 은행이 정한 연체이자율이 적용된 지연배상금을 납부해야 합니다.<br />
+                                    ② 고객의 신용상태에 중대한 변동이 생기거나 허위 자료를 제출한 경우 대출금 전액을 즉시 상환해야 할 의무를 가집니다.
+                                </>
+                            ) : (
+                                <>
+                                    <strong>제 1조 (목적)</strong><br />
+                                    본 약관은 주택청약종합저축 가입자의 권리와 의무를 규정하며, 국민주택 및 민영주택 청약 자격 부여를 목적으로 합니다.<br /><br />
+                                    
+                                    <strong>제 2조 (가입대상 및 계좌 제한)</strong><br />
+                                    ① 국내 거주자인 국민 및 외국인 누구나 가입 가능합니다.<br />
+                                    ② 전 금융기관을 통틀어 1인 1계좌만 보유할 수 있습니다. (중복 가입 불가)<br /><br />
+
+                                    <strong>제 3조 (납입금액 및 이율)</strong><br />
+                                    ① 매월 2만원 이상 50만원 이하의 금액을 자유롭게 10원 단위로 납입할 수 있습니다.<br />
+                                    ② 적용 이율은 정부의 주택도시기금 운용 계획에 따라 변동될 수 있습니다.<br /><br />
+                                    
+                                    <strong>제 4조 (해지)</strong><br />
+                                    본 상품은 일부 인출이 불가능하며, 청약 당첨 시 또는 가입자의 요청에 의해 전액 해지 처리됩니다.
+                                </>
+                            )}
+                        </div>
+                        
+                        <div className={styles.modalSingleButtonWrapper}>
+                            {/* 💡 취소 버튼은 과감히 삭제! */}
+                            <button 
+                                className={styles.singleButton}
+                                onClick={() => {
+                                    // alert창 없이 모달만 닫기
+                                    setIsTermsModalOpen(false);
+                                }}
+                            >
+                                확인
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+            
             <ChatBot />
         </>
     );
 };
 
-export default Home
+export default Home;
