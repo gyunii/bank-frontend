@@ -237,12 +237,62 @@ const CheckCard = () => {
       {activeAgreementModal && (
         <div className={styles.pinModalBackdrop} onClick={() => setActiveAgreementModal(null)}>
           <div className={styles.pinModalContent} onClick={(e) => e.stopPropagation()}>
-            <h3>약관 상세 내용</h3>
+            
+            <h3>
+              {activeAgreementModal === 'term1' && '[필수] 체크카드 개인회원 약관'}
+              {activeAgreementModal === 'term2' && '[필수] 개인정보 수집 및 이용 동의'}
+              {activeAgreementModal === 'term3' && '[선택] 마케팅 정보 수신 동의'}
+            </h3>
+            
             <div className={styles.termsContentBox}>
-              제 1장 총칙<br/><br/>
-              본 약관은 고객님의 개인정보 및 서비스 이용에 관한 권리와 의무를 규정합니다. 
-              회사는 고객의 정보를 안전하게 보호하며... (중략) ...<br/><br/>
-              동의 버튼을 누르시면 해당 약관에 동의한 것으로 간주됩니다.
+              
+              {activeAgreementModal === 'term1' && (
+                <>
+                  <strong>제 1조 (목적)</strong><br />
+                  본 약관은 고객(이하 '회원')이 은행이 발행한 체크카드를 이용함에 있어 필요한 제반 사항과 권리 및 의무를 규정함을 목적으로 합니다.<br /><br />
+                  
+                  <strong>제 2조 (이용 한도 및 결제)</strong><br />
+                  ① 체크카드는 가입 시 연결된 결제계좌의 예금 잔액 범위 내에서만 사용이 가능합니다.<br />
+                  ② 카드 승인 즉시 회원의 결제계좌에서 해당 금액이 자동 출금 처리됩니다.<br /><br />
+                  
+                  <strong>제 3조 (비밀번호 관리 의무)</strong><br />
+                  회원은 카드 비밀번호 및 핀(PIN) 번호가 타인에게 노출되지 않도록 철저히 관리해야 하며, 고의 또는 중대한 과실로 인한 비밀번호 유출로 발생한 손해는 회원이 부담합니다.<br /><br />
+                  
+                  <strong>제 4조 (분실 및 도난 신고)</strong><br />
+                  ① 카드의 분실 또는 도난 사실을 인지한 경우, 회원은 즉시 은행 영업점 또는 고객센터를 통해 신고해야 합니다.<br />
+                  ② 신고 접수 시점 이후에 발생한 타인의 부정 사용 금액에 대해서는 은행이 책임을 부담합니다.
+                </>
+              )}
+
+              {activeAgreementModal === 'term2' && (
+                <>
+                  <strong>1. 수집 및 이용 목적</strong><br />
+                  체크카드 발급 심사, 본인 인증, 결제 서비스 제공, 금융 사고 예방 및 분쟁 처리<br /><br />
+                  
+                  <strong>2. 수집하는 개인정보 항목</strong><br />
+                  성명, 주민등록번호(또는 외국인등록번호), 연락처, 이메일, 자택/직장 주소, 결제계좌 정보<br /><br />
+                  
+                  <strong>3. 개인정보의 보유 및 이용 기간</strong><br />
+                  금융거래 종료일(카드 해지일)로부터 5년까지 (단, 관련 법령에 의거하여 보존할 필요가 있는 경우 해당 법령에서 정한 기간 동안 보존)<br /><br />
+                  
+                  <span style={{ color: '#E63946' }}><strong>※ 동의 거부 권리</strong></span><br />
+                  고객님은 위 개인정보 수집 및 이용에 대한 동의를 거부할 권리가 있습니다. 단, 필수 항목 동의 거부 시 체크카드 발급 및 서비스 이용이 불가능합니다.
+                </>
+              )}
+
+              {activeAgreementModal === 'term3' && (
+                <>
+                  <strong>1. 수집 및 이용 목적</strong><br />
+                  새로운 금융상품 안내, 이벤트 참여 기회 제공, 고객 맞춤형 혜택 안내<br /><br />
+                  
+                  <strong>2. 보유 및 이용 기간</strong><br />
+                  동의 철회 시 또는 회원 탈퇴 시까지<br /><br />
+                  
+                  <strong>※ 동의 거부 권리</strong><br />
+                  본 동의는 선택 사항으로, 동의하지 않으셔도 체크카드 발급이 가능합니다. 단, 유용한 혜택 및 이벤트 안내를 받으실 수 없게 됩니다.
+                </>
+              )}
+
             </div>
             <button className={styles.nextBtn} onClick={handleAgreeClick}>
               위 약관에 동의합니다
