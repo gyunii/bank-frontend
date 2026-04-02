@@ -255,3 +255,106 @@
   background: none;
   pointer-events: none;
 }
+
+@media screen and (max-width: 768px) {
+  .pageContainer {
+    padding: 20px 15px;
+    height: auto;
+    min-height: 100vh;
+  }
+
+  .mypageLayout {
+    flex-direction: column;
+  }
+
+  .sidebar {
+    width: 100%;
+    padding-right: 0;
+    margin-bottom: 20px;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 20px;
+  }
+
+  .profileBox {
+    padding: 15px 0;
+    border-bottom: none;
+    margin-bottom: 10px;
+  }
+
+  .menuList {
+    flex-direction: row;
+    justify-content: space-around;
+    background-color: #fff;
+    border-radius: 12px;
+    padding: 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+  }
+
+  .menuItem {
+    padding: 10px;
+    font-size: 14px;
+    border-bottom: none;
+    flex: 1;
+    text-align: center;
+    justify-content: center;
+  }
+
+  .menuItem span {
+    display: none;
+  }
+
+  .mainContent {
+    padding: 30px 20px;
+    min-height: auto;
+    border-radius: 20px;
+  }
+
+  .sectionTitle {
+    font-size: 20px;
+    text-align: center;
+    margin-bottom: 20px;
+  }
+
+  .balanceBox {
+    margin-bottom: 30px;
+    text-align: center;
+    background-color: #f9fafa;
+    padding: 20px;
+    border-radius: 12px;
+  }
+
+  .balanceLabel {
+    font-size: 14px;
+  }
+
+  .balanceAmount {
+    font-size: 24px;
+  }
+
+  .inputRow {
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  .selectBox, 
+  .inputBox {
+    width: 100%;
+    padding: 15px;
+    font-size: 15px;
+  }
+
+  .submitBtn {
+    padding: 16px;
+    font-size: 16px;
+    border-radius: 12px;
+  }
+
+  .pinModalContent {
+    padding: 30px 20px;
+  }
+
+  .keyBtn {
+    padding: 12px 0;
+    font-size: 18px;
+  }
+}
