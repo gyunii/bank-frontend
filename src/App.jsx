@@ -19,6 +19,7 @@ import PinReset from "./pages/Customer/PinReset.jsx";
 import OverdueIntro from './pages/Customer/OverdueIntro.jsx';
 import OverdueRepay from './pages/Customer/OverdueRepay.jsx';
 import CheckCard from './pages/Customer/CheckCard.jsx';
+import Transfer from './pages/Customer/Transfer.jsx';
 
 function App() {
   return (
@@ -42,6 +43,7 @@ function App() {
         <Route path="/overdue" element={<OverdueIntro />} />
         <Route path="/overdue/repay" element={<OverdueRepay />} />
         <Route path="/CheckCard" element={<CheckCard />} />
+        <Route path="/Transfer" element={<PrivateRoute allowedRoles={['customer', 'corporate']}><Transfer /></PrivateRoute>} />
 
         <Route path="/adminlogin" element={<AdminLogin />} />
         

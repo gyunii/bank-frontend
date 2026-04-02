@@ -154,7 +154,14 @@ const MyPage = () => {
                                 
                                 <div className={styles.accountActions}>
                                     <span className={styles.balance}>{account.balance?.toLocaleString()} 원</span>
-                                    <button className={styles.transferBtn}>이체</button>
+                                    {account.accountType === 'DEMAND' && account.status == 'ACTIVE' && (
+                                        <button 
+                                            className={styles.transferBtn}
+                                            onClick={() => navigate('/Transfer', { state: { account } })}
+                                        >
+                                            이체
+                                        </button>
+                                    )}
                                 </div>
                             </div>
                         ))
