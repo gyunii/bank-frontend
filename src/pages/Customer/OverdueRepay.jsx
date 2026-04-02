@@ -19,7 +19,7 @@ const OverdueRepay = () => {
     <div className={styles.pageContainer}>
       <div className={styles.stepperLayout}>
         
-        {/* 좌측 사이드바 (스텝퍼) */}
+        {/* 좌측 사이드바*/}
         <aside className={styles.sidebar}>
           <h2 className={styles.sidebarTitle}>
             BANKSCOPE<br />연체금 즉시 상환

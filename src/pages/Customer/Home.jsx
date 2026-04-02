@@ -122,6 +122,9 @@ const Home = () => {
             case '통장 비밀번호 재설정':
                 message = '통장 비밀번호 재설정은 본인 확인 서류 원본 대조를 위해\n영업점 방문이 필수적인 업무입니다.';
                 break;
+            case '체크카드 발급':
+                navigate('/CheckCard');
+                return;
             case '펀드/보험 상담':
                 message = '고객님께 최적화된 펀드 및 보험 포트폴리오 구성을 위해\n영업점 방문을 권장합니다.';
                 break;

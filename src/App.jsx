@@ -18,6 +18,7 @@ import PinSetup from './pages/Customer/PinSetup.jsx';
 import PinReset from "./pages/Customer/PinReset.jsx";
 import OverdueIntro from './pages/Customer/OverdueIntro.jsx';
 import OverdueRepay from './pages/Customer/OverdueRepay.jsx';
+import CheckCard from './pages/Customer/CheckCard.jsx';
 
 function App() {
   return (
@@ -40,6 +41,7 @@ function App() {
         <Route path="/board/detail/:id" element={<BoardDetail />} />
         <Route path="/overdue" element={<OverdueIntro />} />
         <Route path="/overdue/repay" element={<OverdueRepay />} />
+        <Route path="/CheckCard" element={<CheckCard />} />
 
         <Route path="/AdminLogin" element={<AdminLogin />} />
         
