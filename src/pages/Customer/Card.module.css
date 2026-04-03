@@ -310,6 +310,117 @@
   pointer-events: none;
 }
 
+.cardListContainer {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.cardListItem {
+  display: flex;
+  flex-direction: column;
+  border-bottom: 1px solid #eee;
+  padding: 20px 0;
+}
+
+.cardListMain {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.cardListLeft {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.cardListImage {
+  width: 60px; /* 카드 이미지 크기 조절 */
+  height: auto;
+  border-radius: 6px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  transform: rotate(90deg); /* 💡 보통 세로형 카드 이미지를 가로로 눕혀서 보여줌 */
+}
+
+.cardListText {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.cardHighlight {
+  color: #d97736; /* 와이어프레임의 오렌지색/브라운 텍스트 */
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.cardTitle {
+  font-size: 18px;
+  font-weight: 800;
+  color: #222;
+}
+
+.cardSubtitle {
+  font-size: 13px;
+  color: #888;
+}
+
+.cardListRight {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 10px;
+}
+
+.joinBtn {
+  background-color: #6bc0a1; /* 와이어프레임의 민트/그린 버튼 */
+  color: white;
+  border: none;
+  padding: 8px 24px;
+  border-radius: 4px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.joinBtn:hover {
+  background-color: #4A9C82;
+}
+
+.moreBtn {
+  background: none;
+  border: none;
+  color: #555;
+  font-size: 13px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* 혜택 확장 영역 (아코디언) */
+.expandedBenefits {
+  margin-top: 20px;
+  padding: 20px;
+  background-color: #f9fafa;
+  border-radius: 12px;
+  animation: fadeIn 0.3s ease;
+}
+
+.expandedBenefits ul {
+  margin: 0;
+  padding-left: 20px;
+  color: #444;
+  line-height: 1.8;
+  font-size: 14px;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
 @media screen and (max-width: 768px) {
   .stepperLayout {
     flex-direction: column;

@@ -21,6 +21,7 @@ import OverdueRepay from './pages/Customer/OverdueRepay.jsx';
 import CheckCard from './pages/Customer/CheckCard.jsx';
 import Transfer from './pages/Customer/Transfer.jsx';
 import AiRecommend from './pages/Customer/AiRecommend';
+import CreditCard from './pages/Customer/CreditCard.jsx';
 
 function App() {
   return (
@@ -46,6 +47,7 @@ function App() {
         <Route path="/CheckCard" element={<CheckCard />} />
         <Route path="/Transfer" element={<PrivateRoute allowedRoles={['customer', 'corporate']}><Transfer /></PrivateRoute>} />
         <Route path="/AiRecommend" element={<AiRecommend />} />
+        <Route path="/CreditCard" element={<PrivateRoute allowedRoles={['customer']}><CreditCard /></PrivateRoute>} />
 
         <Route path="/adminlogin" element={<AdminLogin />} />
         

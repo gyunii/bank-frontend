@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useModal } from '../../context/ModalContext';
-import styles from './CheckCard.module.css';
+import styles from './Card.module.css';
 import checkIcon from '../../images/Common/Check.png';
 import greenCardImg from '../../images/Home/Card1.png';
 import blueCardImg from '../../images/Home/Card2.png';
@@ -109,7 +109,7 @@ const CheckCard = () => {
       <div className={styles.stepperLayout}>
         
         <aside className={styles.sidebar}>
-          <h2 className={styles.sidebarTitle}>BANKSCOPE<br />카드 개설</h2>
+          <h2 className={styles.sidebarTitle}>BANKSCOPE<br />카드 발급</h2>
           <div className={styles.stepList}>
             {steps.map((s) => (
               <div key={s.id} className={`${styles.stepItem} ${step >= s.id ? styles.active : ''}`}>
@@ -210,6 +210,13 @@ const CheckCard = () => {
                 value={cardPwdConfirm}
                 onChange={(e) => setCardPwdConfirm(e.target.value.replace(/[^0-9]/g, ''))}
               />
+              <div style={{ height: '20px', marginBottom: '20px', marginLeft: '5px' }}>
+                                {cardPwdConfirm.length > 0 && cardPwd !== cardPwdConfirm && (
+                                    <span style={{ color: '#E63946', fontSize: '13px', fontWeight: '600' }}>
+                                        비밀번호가 동일하지 않습니다.
+                                    </span>
+                                )}
+                            </div>
               <button 
                 className={`${styles.nextBtn} ${cardPwd.length !== 4 || cardPwd !== cardPwdConfirm ? styles.disabledBtn : ''}`}
                 disabled={cardPwd.length !== 4 || cardPwd !== cardPwdConfirm}
@@ -224,7 +231,7 @@ const CheckCard = () => {
             <div className={styles.stepBox}>
               <div className={styles.completeBox}>
                 <img src={checkIcon} alt="완료 체크" className={styles.checkIcon} />
-                <h3 className={styles.completeTitle}>카드 개설 완료!</h3>
+                <h3 className={styles.completeTitle}>카드 발급 신청 완료!</h3>
                 <p className={styles.completeDesc}>영업점에 방문해 실물카드를<br/>발급 받아주세요</p>
               </div>
               <button className={styles.nextBtn} onClick={() => navigate('/Main')}>홈 화면으로 이동</button>
@@ -303,7 +310,7 @@ const CheckCard = () => {
 
       {isPinModalOpen && (
         <div className={styles.pinModalBackdrop} onClick={() => setIsPinModalOpen(false)}>
-          <div className={styles.pinModalContent} onClick={(e) => e.stopPropagation()}>
+          <div className={styles.pinModalContent} onClick={(e) => e.stopPropagation()} style={{ width: '90%', maxWidth: '400px', textAlign: 'center', padding: '40px' }}>
             <h3>보안 핀(PIN) 번호를 입력해주세요</h3>
             <p style={{ color: '#888', fontSize: '14px', marginBottom: '20px' }}>본인 확인을 위해 6자리 핀 번호를 입력합니다.</p>
             

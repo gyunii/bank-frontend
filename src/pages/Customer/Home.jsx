@@ -138,6 +138,9 @@ const Home = () => {
             case '체크카드 발급':
                 navigate('/CheckCard');
                 return;
+            case '신용카드 신청':
+                navigate('/CreditCard');
+                return;
             case '펀드/보험 상담':
                 message = '고객님께 최적화된 펀드 및 보험 포트폴리오 구성을 위해\n영업점 방문을 권장합니다.';
                 break;
