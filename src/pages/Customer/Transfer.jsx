@@ -67,25 +67,6 @@ const Transfer = () => {
   return (
     <div className={styles.pageContainer}>
       <div className={styles.mypageLayout}>
-        
-        <aside className={styles.sidebar}>
-          <div className={styles.profileBox}>
-            <div className={styles.profileIcon}>
-              <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                <circle cx="12" cy="7" r="4"></circle>
-              </svg>
-            </div>
-            <div className={styles.profileName}>환영합니다. 김갑수님</div>
-            <div className={styles.profileEmail}>ADMIN1@NAVER.COM</div>
-          </div>
-          <div className={styles.menuList}>
-            <div className={styles.menuItem}>계정 관리 <span>&gt;</span></div>
-            <div className={styles.menuItem}>계정 보안 <span>&gt;</span></div>
-            <div className={`${styles.menuItem} ${styles.active}`}>계좌 관리 <span>&gt;</span></div>
-          </div>
-        </aside>
-
         <main className={styles.mainContent}>
           
           {step === 1 && (
