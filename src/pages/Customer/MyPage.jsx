@@ -7,19 +7,43 @@ import lockImg from "../../images/Mypage/Lock.png"
 /*import otpImg from "../../images/Mypage/Mobile.png"*/
 import lockBlackImg from "../../images/Mypage/LockRe.png"
 import arrowImg from "../../images/Mypage/ArrowRight.png"
+import Loading from '../../components/common/Loading';
+import { useModal } from '../../context/ModalContext';
 
 const MyPage = () => {
-    const { user, loading } = useAuth();
+    const { openModal } = useModal();
+    const showAlert = (message, callback = null) => {
+        openModal({
+            message: message,
+            onConfirm: callback
+        });
+    };
+    const { user, loading, logout } = useAuth();
     const navigate = useNavigate();
     const [activeTab, setActiveTab] = useState('accounts');
     const [accounts, setAccounts] = useState([]);
 
+    // 이메일 인증 관련 상태
+    const [emailCode, setEmailCode] = useState('');
+    const [isEmailSent, setIsEmailSent] = useState(false);
+    const [isEmailVerified, setIsEmailVerified] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
+
+    // 정보 수정 관련 상태
+    const [newName, setNewName] = useState('');
+    const [oldPassword, setOldPassword] = useState('');
+    const [newPassword, setNewPassword] = useState('');
+    const [newPasswordConfirm, setNewPasswordConfirm] = useState('');
+
     useEffect(() => {
         if (!loading && !user) {
-            alert("로그인 후 이용 가능합니다.");
-            navigate("/Login");
+            showAlert('로그인 후 이용가능합니다.', () => {
+                navigate("/Login");
+            })
+        } else if (user && newName === '') {
+             setNewName(user.name);
         }
-    }, [user, loading, navigate]);
+    }, [user, loading, navigate, showAlert]);
 
     useEffect(() => {
         if (activeTab === 'accounts' && user) {
@@ -48,56 +72,230 @@ const MyPage = () => {
         }
     }, [activeTab, user]);
 
-    if (loading) return <div>Loading...</div>;
+    if (loading) return <Loading />; // Loading 컴포넌트 사용
     if (!user) return null;
 
     console.log("User Info:", user);
 
-    // const maskResidentNumber = (residentNumber) => {
-    //     if (!residentNumber) return '';
-    //     if (residentNumber.length < 7) return residentNumber;
-    //     return residentNumber.substring(0, 6) + '-*******';
-    // };
+    // 이메일 인증번호 발송
+    const handleSendEmailCode = async () => {
+        setIsLoading(true);
+        try {
+            const response = await fetch(`/api/user/email-send?email=${user.email}&type=password`, { method: 'POST' });
+            const data = await response.json();
+
+            if (data.result === 'SUCCESS') {
+                showAlert('인증코드가 발송되었습니다.');
+                setIsEmailSent(true);
+            } else {
+                showAlert('인증코드 발송에 실패했습니다.');
+            }
+        } catch (error) {
+            console.error('Error sending email code:', error);
+            showAlert('오류가 발생했습니다.');
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    // 이메일 인증번호 확인
+    const handleVerifyEmailCode = async () => {
+        if (!emailCode) {
+            showAlert('인증번호를 입력해주세요.');
+            return;
+        }
+        setIsLoading(true);
+        try {
+            const response = await fetch('/api/user/email-code-verify', {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: user.email, code: emailCode }),
+            });
+            const data = await response.json();
+
+            if (data.result === 'SUCCESS') {
+                showAlert('이메일 인증에 성공했습니다.');
+                setIsEmailVerified(true);
+            } else if (data.result === 'FAILURE_EXPIRED') {
+                showAlert('인증코드가 만료되었습니다. 다시 시도해주세요.');
+                setIsEmailSent(false); // 다시 발송하도록 상태 초기화
+            } else {
+                showAlert('인증코드가 일치하지 않습니다.');
+            }
+        } catch (error) {
+            console.error('Error verifying email code:', error);
+            showAlert('오류가 발생했습니다.');
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    // 정보 수정 (비밀번호/이름)
+    const handleUpdateInfo = async () => {
+        if (!isEmailVerified) {
+            showAlert('먼저 이메일 인증을 완료해주세요.');
+            return;
+        }
+
+        if (!oldPassword) {
+            showAlert('기존 비밀번호를 입력해주세요.');
+            return;
+        }
+        if (!newPassword) {
+            showAlert('새 비밀번호를 입력해주세요.');
+            return;
+        }
+
+        // 유효성 검사 (정규식)
+        /*const passwordRegex = /^(?=.*[a-zA-Z])(?=.*\d)[a-zA-Z\d]{8,}$/; // 8자 이상, 영문/숫자 포함*/
+        const nameRegex = /^[가-힣]+$/; // 한글만 허용 (영문/숫자 불가)
+
+        /*if (!passwordRegex.test(newPassword)) {
+            showAlert('비밀번호는 영문, 숫자를 포함하여 8자 이상이어야 합니다.');
+            return;
+        }*/
+
+        if (newPassword !== newPasswordConfirm) {
+            showAlert('새 비밀번호가 일치하지 않습니다.');
+            return;
+        }
+
+        if (newName && !nameRegex.test(newName)) {
+            showAlert('이름은 한글만 입력 가능하며, 영문이나 숫자는 포함할 수 없습니다.');
+            return;
+        }
+
+        setIsLoading(true);
+        try {
+            const requestBody = {
+                oldPassword: oldPassword,
+                newPassword: newPassword,
+            };
+            
+            // 이름이 변경되었을 경우에만 추가
+            if (newName !== user.name) {
+                requestBody.name = newName;
+            }
+
+            const response = await fetch('/api/user/password', {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(requestBody),
+            });
+            const data = await response.json();
+
+            if (data.result === 'SUCCESS') {
+                showAlert('정보가 성공적으로 변경되었습니다. 다시 로그인해주세요.', async () => {
+                     if (logout) {
+                         await logout(); // Context의 logout 호출
+                     }
+                     navigate('/Login');
+                });
+            } else {
+                showAlert('정보 변경에 실패했습니다. 기존 비밀번호를 확인해주세요.');
+            }
+        } catch (error) {
+            console.error('Error updating info:', error);
+            showAlert('오류가 발생했습니다.');
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
 
     // 1. 계정 관리
     const renderAccountManagement = () => (
         <div className={styles.managementWrapper}>
             <h2 className={styles.managementTitle}>개인 정보 변경</h2>
             <div className={styles.formWrapper}>
-                <div className={styles.formGroup}>
-                    <label className={styles.formLabel}>이름</label>
-                    <input 
-                        type="text" 
-                        defaultValue={user.name} 
-                        placeholder="이름을 입력해주세요" 
-                        className={styles.input} 
-                    />
-                </div>
-                
-                {/* defaultValue에 DB 데이터(user.email) 연결 */}
+
                 <div className={styles.formGroup}>
                     <label className={styles.formLabel}>이메일</label>
                     <div className={styles.inputRow}>
                         <input 
                             type="text" 
                             defaultValue={user.email} 
-                            placeholder="이메일을 입력해주세요" 
+                            disabled 
                             className={`${styles.input} ${styles.flex1}`} 
                         />
-                        <button className={styles.formBtn}>인증 번호</button>
+                        <button 
+                            className={styles.formBtn} 
+                            onClick={handleSendEmailCode}
+                            disabled={isEmailVerified || isLoading}
+                        >
+                            {isEmailVerified ? '인증완료' : '인증번호 발송'}
+                        </button>
                     </div>
-                    <div className={styles.inputRow}>
-                        <input type="text" placeholder="인증번호를 입력해주세요" className={`${styles.input} ${styles.flex1}`} />
-                        <button className={styles.formBtn}>확인</button>
+                    
+                    {isEmailSent && !isEmailVerified && (
+                        <div className={styles.inputRow}>
+                            <input 
+                                type="text" 
+                                placeholder="인증번호를 입력해주세요" 
+                                className={`${styles.input} ${styles.flex1}`} 
+                                value={emailCode}
+                                onChange={(e) => setEmailCode(e.target.value)}
+                            />
+                            <button className={styles.formBtn} onClick={handleVerifyEmailCode} disabled={isLoading}>확인</button>
+                        </div>
+                    )}
+                    
+                    <div className={styles.formGroup}>
+                        <label className={styles.formLabel}>이름</label>
+                        <input
+                            type="text"
+                            value={newName}
+                            onChange={(e) => setNewName(e.target.value)}
+                            placeholder="이름을 입력해주세요"
+                            className={styles.input}
+                            disabled={!isEmailVerified}
+                        />
                     </div>
                 </div>
+                
                 <div className={styles.formGroup}>
-                    <label className={styles.formLabel}>비밀번호</label>
-                    <input type="password" placeholder="비밀번호를 입력해주세요" className={styles.input} />
+                    <label className={styles.formLabel}>기존 비밀번호</label>
+                    <input 
+                        type="password" 
+                        placeholder="기존 비밀번호를 입력해주세요" 
+                        className={styles.input} 
+                        value={oldPassword}
+                        onChange={(e) => setOldPassword(e.target.value)}
+                        disabled={!isEmailVerified}
+                    />
                 </div>
                 <div className={styles.formGroup}>
-                    <label className={styles.formLabel}>비밀번호 재확인</label>
-                    <input type="password" placeholder="비밀번호를 동일하게 입력해주세요" className={styles.input} />
+                    <label className={styles.formLabel}>새 비밀번호</label>
+                    <input 
+                        type="password" 
+                        placeholder="새 비밀번호를 입력해주세요 (영문, 숫자 포함 8자 이상)" 
+                        className={styles.input} 
+                        value={newPassword}
+                        onChange={(e) => setNewPassword(e.target.value)}
+                        disabled={!isEmailVerified}
+                    />
+                </div>
+                <div className={styles.formGroup}>
+                    <label className={styles.formLabel}>새 비밀번호 재확인</label>
+                    <input 
+                        type="password" 
+                        placeholder="새 비밀번호를 동일하게 입력해주세요" 
+                        className={styles.input} 
+                        value={newPasswordConfirm}
+                        onChange={(e) => setNewPasswordConfirm(e.target.value)}
+                        disabled={!isEmailVerified}
+                    />
+                </div>
+                
+                <div style={{ textAlign: 'center', marginTop: '20px' }}>
+                    <button 
+                        className={styles.formBtn} 
+                        style={{ width: '200px', height: '50px', fontSize: '16px' }}
+                        onClick={handleUpdateInfo}
+                        disabled={!isEmailVerified || isLoading}
+                    >
+                        정보 수정하기
+                    </button>
                 </div>
             </div>
         </div>
@@ -173,6 +371,7 @@ const MyPage = () => {
 
     return (
         <div className={styles.container}>
+            {isLoading && <Loading />}
             <div className={styles.layoutWrapper}>
                 
                 <div className={styles.sidebar}>

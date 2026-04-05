@@ -99,7 +99,7 @@ const Register = () => {
         setIsLoading(true); // 로딩 시작
         
         try {
-            const response = await fetch(`/api/user/email-send?email=${formData.email}`, { method: 'POST' });
+            const response = await fetch(`/api/user/email-send?email=${formData.email}&type=register`, { method: 'POST' });
             const data = await response.json();
 
             if (data.result === 'SUCCESS') {

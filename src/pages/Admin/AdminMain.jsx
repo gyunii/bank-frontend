@@ -9,6 +9,7 @@ import adminIcon from '../../images/AdminMain/admin.png';
 import UserManagement from '../../components/Admin/UserManagement.jsx';
 import Admin_dashboard from './Admin_dashboard.jsx';
 import BoardManagement from '../../components/Admin/BoardManagement.jsx';
+import { useModal } from '../../context/ModalContext';
 
 // ★ 마이페이지 컴포넌트 불러오기
 import AdminMyPage from './AdminMyPage.jsx';
@@ -16,7 +17,8 @@ import AdminMyPage from './AdminMyPage.jsx';
 const AdminMain = () => {
     const { user, logout, loading } = useAuth();
     const navigate = useNavigate();
-    
+    const { openModal } = useModal();
+
     const [activeTab, setActiveTab] = useState('dashboard');
 
     const menuItems = [
@@ -26,6 +28,14 @@ const AdminMain = () => {
         { id: 'news', label: '새소식 관리' },    
         { id: 'events', label: '이벤트 관리' }, 
     ];
+
+    const showConfirm = (message, onConfirmCallback) => {
+        openModal({
+            message: message,
+            onConfirm: onConfirmCallback,
+            onCancel: () => {}, // 취소 버튼 활성화 및 동작 없음을 명시 (모달은 자동 닫힘)
+        });
+    }
 
     useEffect(() => {
         if (!loading && !user) {
@@ -37,11 +47,11 @@ const AdminMain = () => {
     if (loading) return <div>Loading...</div>;
     if (!user) return null;
 
-    const handleLogout = async () => {
-        if (window.confirm("로그아웃 하시겠습니까?")) {
+    const handleLogout = () => {
+        showConfirm('로그아웃 하시겠습니까?', async () => {
             await logout();
-            navigate('/AdminLogin');
-        }
+            navigate('/adminlogin');
+        });
     };
 
    const renderContent = () => {
