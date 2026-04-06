@@ -106,7 +106,6 @@ export default function InterestManagement() {
           <tbody>
             {productList.length > 0 ? productList.map(item => (
               <tr key={item.id} className={styles.clickableRow} onClick={() => handleProductClick(item)}>
-                {/* ✨ ID 지시사항 반영: ID 완전 삭제, 상품명만 굵게 출력! ✨ */}
                 <td className={styles.leftAlign}><b>{item.name}</b></td>
                 
                 <td><span className={styles.typeBadge}>{item.type}</span></td>

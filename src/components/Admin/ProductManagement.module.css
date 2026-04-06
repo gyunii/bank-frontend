@@ -1,7 +1,5 @@
 .container {
     padding: 10px 20px;
-    /* 👈 [수정된 부분] height: calc(...), overflow: hidden 속성 삭제! 
-         이제 억지로 칸을 만들지 않고 내용물에 따라 자연스럽게 스크롤됩니다. */
     display: flex;
     flex-direction: column;
     box-sizing: border-box;
