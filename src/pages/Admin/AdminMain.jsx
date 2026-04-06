@@ -6,11 +6,17 @@ import logoutIcon from '../../images/AdminMain/logout.png';
 import pwIcon from '../../images/AdminMain/pw.png';
 import navIcon from '../../images/AdminMain/icon.png';
 import adminIcon from '../../images/AdminMain/admin.png';
-import UserManagement from '../../components/Admin/UserManagement.jsx';
-import Admin_dashboard from './Admin_dashboard.jsx';
-import BoardManagement from '../../components/Admin/BoardManagement.jsx';
 
-// ★ 마이페이지 컴포넌트 불러오기
+// ==========================================
+// ★ 컴포넌트 경로 
+// ==========================================
+import UserManagement from '../../components/Admin/UserManagement.jsx';
+import BoardManagement from '../../components/Admin/BoardManagement.jsx';
+import ProductManagement from '../../components/Admin/ProductManagement.jsx';
+import InterestManagement from '../../components/Admin/InterestManagement.jsx';
+
+// 2. 같은 pages 폴더
+import Admin_dashboard from './Admin_dashboard.jsx';
 import AdminMyPage from './AdminMyPage.jsx';
 
 const AdminMain = () => {
@@ -22,6 +28,7 @@ const AdminMain = () => {
     const menuItems = [
         { id: 'dashboard', label: '대시보드' },     
         { id: 'bank', label: '금융 상품 관리' },
+        { id: 'interest', label: '금리 관리' },  
         { id: 'users', label: '사용자 관리' },
         { id: 'news', label: '새소식 관리' },    
         { id: 'events', label: '이벤트 관리' }, 
@@ -44,25 +51,27 @@ const AdminMain = () => {
         }
     };
 
-   const renderContent = () => {
-    switch (activeTab) {
-        case 'dashboard':
-            return <div className={styles.card}><Admin_dashboard /></div>;
-        case 'bank':
-            return <div className={styles.card}><h3>금융 상품 관리</h3><p>상품 준비중...</p></div>;
-        case 'users':
-            return <div className={styles.card}><UserManagement /></div>;
-        case 'news':
-            return <div className={styles.card}><BoardManagement type="news" title="새소식"/></div>;
-        case 'events':
-            return <div className={styles.card}><BoardManagement type="events" title="이벤트" /></div>;
-        case 'info':
-            return <AdminMyPage />;
-            
-        default:
-            return <div className={styles.card}><Admin_dashboard /></div>;
-    }
-};
+    const renderContent = () => {
+        switch (activeTab) {
+            case 'dashboard':
+                return <div className={styles.card}><Admin_dashboard /></div>;
+            case 'bank':
+                return <div className={styles.card}><ProductManagement /></div>;
+            case 'interest':
+                return <div className={styles.card}><InterestManagement /></div>;
+            case 'users':
+                return <div className={styles.card}><UserManagement /></div>;
+            case 'news':
+                return <div className={styles.card}><BoardManagement type="news" title="새소식"/></div>;
+            case 'events':
+                return <div className={styles.card}><BoardManagement type="events" title="이벤트" /></div>;
+            case 'info':
+                return <AdminMyPage />;
+                
+            default:
+                return <div className={styles.card}><Admin_dashboard /></div>;
+        }
+    };
 
     return (
         <div className={styles.container}>
