@@ -9,6 +9,7 @@ import lockBlackImg from "../../images/Mypage/LockRe.png"
 import arrowImg from "../../images/Mypage/ArrowRight.png"
 import Loading from '../../components/common/Loading';
 import { useModal } from '../../context/ModalContext';
+import CardManage from './CardManage.jsx';
 
 const MyPage = () => {
     const { openModal } = useModal();
@@ -407,7 +408,10 @@ const MyPage = () => {
                             <span>계좌 관리</span>
                             <img src={arrowImg} alt="Select" className={styles.chevronImg} />
                         </div>
-                        <div className={styles.menuItem}>
+                        <div 
+                            className={`${styles.menuItem} ${activeTab === 'cards' ? styles.active : ''}`}
+                            onClick={() => setActiveTab('cards')}
+                        >
                             <span>내 카드 관리</span>
                             <img src={arrowImg} alt="Select" className={styles.chevronImg} />
                         </div>
@@ -418,6 +422,7 @@ const MyPage = () => {
                     {activeTab === 'account' && renderAccountManagement()}
                     {activeTab === 'security' && renderSecurity()}
                     {activeTab === 'accounts' && renderAccounts()}
+                    {activeTab === 'cards' && <CardManage />}
                 </div>
 
             </div>
