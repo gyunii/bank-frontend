@@ -36,29 +36,57 @@ const AdminMyPage = () => {
     setPasswords((prev) => ({ ...prev, [name]: value }));
   };
 
-
   const handleSubmit = (e) => {
     e.preventDefault();
     
+    // 1. 빈 값 체크
     if (!passwords.currentPassword || !passwords.newPassword || !passwords.confirmPassword) {
       setMessage({ type: 'error', text: '모든 필드를 입력해주세요.' });
       return;
     }
+    
+    // 2. 새 비밀번호 일치 체크
     if (passwords.newPassword !== passwords.confirmPassword) {
       setMessage({ type: 'error', text: '새 비밀번호가 일치하지 않습니다.' });
       return;
     }
     
-    // 모든 검증 통과 시 모달 열기
+    // 모든 검증 통과 시 확인 모달 열기
     setMessage({ type: '', text: '' });
     setModalType('confirm'); 
   };
 
-  // 비밀번호 변경 로직 실행
-  const executePasswordChange = () => {
-    setTimeout(() => {
-      setModalType('success');
-    }, 150);
+  // 💡 백엔드 연동: 비밀번호 변경 로직 실행
+  const executePasswordChange = async () => {
+    try {
+      // URLSearchParams를 사용하여 form-data 형태로 전송 (MemberController의 String password 수신용)
+      const params = new URLSearchParams();
+      params.append('password', passwords.newPassword); 
+      // 만약 백엔드에서 현재 비밀번호 검증도 추가한다면 아래 줄 주석 해제 후 백엔드 파라미터명과 맞추세요
+      // params.append('currentPassword', passwords.currentPassword);
+
+      const response = await fetch('/api/member/password', {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        credentials: 'include', // 세션 유지를 위해 필수
+        body: params
+      });
+
+      if (response.ok) {
+        // 백엔드 통신 성공 시 성공 모달 띄우기
+        setModalType('success');
+      } else {
+        // 서버에서 에러 응답 시 (예: 현재 비밀번호 틀림 등)
+        setModalType(''); // 모달 닫기
+        setMessage({ type: 'error', text: '비밀번호 변경에 실패했습니다. 현재 비밀번호를 확인해주세요.' });
+      }
+    } catch (error) {
+      console.error("비밀번호 변경 통신 에러:", error);
+      setModalType(''); // 모달 닫기
+      setMessage({ type: 'error', text: '서버와 통신 중 문제가 발생했습니다.' });
+    }
   };
 
   // 성공 모달 확인 버튼 클릭 시 실행되는 함수
@@ -81,12 +109,7 @@ const AdminMyPage = () => {
       <section className={styles.infoSection}>
         <h2 className={styles.sectionTitle}>기본 정보</h2>
         <div className={styles.infoCard}>
-          <div className={styles.statusWrapper}>
-            <select className={styles.statusSelect} defaultValue="active">
-              <option value="active">활성화</option>
-              <option value="inactive">비활성화</option>
-            </select>
-          </div>
+          {/* ❌ 요청하신 "활성화/비활성화" 드롭다운 (statusWrapper) 완전 삭제 */}
 
           <div className={styles.profileIconWrapper}>
             <svg viewBox="0 0 24 24" fill="#00c09a" width="60" height="60">
@@ -159,14 +182,13 @@ const AdminMyPage = () => {
         </div>
       </section>
 
-
       {/* 1. 변경 전 확인 모달 */}
       {modalType === 'confirm' && (
         <CustomModal 
           isOpen={true} 
           onClose={handleConfirmClose}
           title="비밀번호 변경 확인"
-          onConfirm={executePasswordChange}
+          onConfirm={executePasswordChange} // 💡 API 호출 함수 연결
           onCancel={handleConfirmClose}
           confirmText="변경하기"
           cancelText="취소"

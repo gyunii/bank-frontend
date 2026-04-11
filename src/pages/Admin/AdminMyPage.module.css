@@ -50,22 +50,6 @@
   align-items: center;
 }
 
-.statusWrapper {
-  position: absolute;
-  top: 16px;
-  right: 16px;
-}
-
-.statusSelect {
-  border: 1px solid #d1d5db;
-  border-radius: 0.25rem;
-  padding: 4px 8px;
-  font-size: 0.75rem;
-  color: #4b5563;
-  outline: none;
-  background-color: #f9fafb;
-}
-
 .profileIconWrapper {
   margin-bottom: 12px;
   background-color: #e0fcf6;
@@ -195,7 +179,6 @@
   padding: 20px 0;
   font-size: 16px;
   color: #1f2937;
-  font-weight: bold;
 }
 
 .modalSuccessText {
@@ -203,5 +186,52 @@
   padding: 20px 0;
   font-size: 16px;
   color: #1f2937;
-  font-weight: bold;
 }
+
+/* =========================================
+   레벨별 색상 테마 (CSS 변수 활용 - 초고효율!)
+========================================= */
+
+/* 1. 팔레트 (여기서 색상을 한 번만 정의합니다) */
+:root {
+  /* Lv.1 */
+  --lv1-bg: #f0fdf4;
+  --lv1-point: #166534; /* Text와 Fill이 같은 색을 씀 */
+  
+  /* Lv.2 */
+  --lv2-bg: #dcfce7;
+  --lv2-point: #15803d;
+  
+  /* Lv.3 */
+  --lv3-bg: #bbf7d0;
+  --lv3-point: #166534;
+  
+  /* Lv.4 */
+  --lv4-bg: #86efac;
+  --lv4-point: #065f46;
+  
+  /* Lv.5 */
+  --lv5-bg: #059669;
+  --lv5-point: #1e1e1e;
+}
+
+/* 2. 창구 모니터링 뱃지용 (배경색 + 글자색) */
+.levelBadge1 { background: var(--lv1-bg); color: var(--lv1-point); }
+.levelBadge2 { background: var(--lv2-bg); color: var(--lv2-point); }
+.levelBadge3 { background: var(--lv3-bg); color: var(--lv3-point); }
+.levelBadge4 { background: var(--lv4-bg); color: var(--lv4-point); }
+.levelBadge5 { background: var(--lv5-bg); color: var(--lv5-point); }
+
+/* 3. 글자 색상용 (업무 이름 등) */
+.levelText1 { color: var(--lv1-point); }
+.levelText2 { color: var(--lv2-point); }
+.levelText3 { color: var(--lv3-point); }
+.levelText4 { color: var(--lv4-point); }
+.levelText5 { color: var(--lv5-point); }
+
+/* 4. 차트 막대그래프 채우기용 (배경색) */
+.levelFill1 { background: var(--lv1-point); }
+.levelFill2 { background: var(--lv2-point); }
+.levelFill3 { background: var(--lv3-point); }
+.levelFill4 { background: var(--lv4-point); }
+.levelFill5 { background: var(--lv5-point); }

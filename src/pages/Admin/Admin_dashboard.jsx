@@ -1,227 +1,343 @@
 import React, { useState, useEffect } from "react";
 import styles from "./Admin_dashboard.module.css";
-import CustomModal from "../../components/common/CustomModal"; 
+import { useModal } from '../../context/ModalContext';
 
-// --- Mock Data ---
-const initialTellers = [
-  { id: 1, name: "김민지", level: 1, role: "신입행원", status: "active", queue: 4, processed: 12, elapsedTime: 850 },
-  { id: 2, name: "이준혁", level: 2, role: "일반행원", status: "idle", queue: 0, processed: 8, elapsedTime: 0 },
-  { id: 3, name: "박소연", level: 2, role: "일반행원", status: "active", queue: 5, processed: 9, elapsedTime: 1245 },
-  { id: 4, name: "최도윤", level: 3, role: "대리", status: "active", queue: 3, processed: 6, elapsedTime: 420 },
-  { id: 5, name: "정하은", level: 4, role: "차장", status: "active", queue: 2, processed: 4, elapsedTime: 180 },
-  { id: 6, name: "강현우", level: 5, role: "지점장", status: "idle", queue: 0, processed: 2, elapsedTime: 0 },
+const MOCK_HOURLY_DATA = [
+  { h: "09", total: 12 }, { h: "10", total: 25 }, { h: "11", total: 18 },
+  { h: "12", total: 30 }, { h: "13", total: 22 }, { h: "14", total: 15 },
+  { h: "15", total: 10 }, { h: "16", total: 5 },
 ];
 
-const initialQueue = [
-  { id: "A-047", name: "홍길동", prediction: "통장정리", level: 1, assignedTo: 1, expectedMins: 5, isIssue: false },
-  { id: "A-048", name: "김민수", prediction: "주택담보대출 상담", level: 4, assignedTo: 5, expectedMins: 45, isIssue: true },
-  { id: "A-049", name: "이지은", prediction: "VIP 자산관리", level: 5, assignedTo: 6, expectedMins: 30, isIssue: true },
-  { id: "A-050", name: "박도윤", prediction: "예금 신규 가입", level: 2, assignedTo: 3, expectedMins: 15, isIssue: true },
-  { id: "A-051", name: "최서아", prediction: "법인계좌 개설", level: 5, assignedTo: 4, expectedMins: 25, isIssue: false },
-];
-
-const HOURLY = [
-  { h: "09", total: 15 }, { h: "10", total: 42 }, { h: "11", total: 58 },
-  { h: "12", total: 35 }, { h: "13", total: 48 }, { h: "14", total: 65 },
-  { h: "15", total: 40 }, { h: "16", total: 22 },
-];
-
-const LEVEL_COLORS = {
-  1: { bg: "#f0fdf4", text: "#166534", border: "#bbf7d0" }, // 아주 연한 민트 (L1)
-  2: { bg: "#dcfce7", text: "#15803d", border: "#86efac" }, // 연한 그린 (L2)
-  3: { bg: "#bbf7d0", text: "#166534", border: "#4ade80" }, // 중간 그린 (L3)
-  4: { bg: "#86efac", text: "#065f46", border: "#22c55e" }, // 진한 민트그린 (L4)
-  5: { bg: "#059669", text: "#1e1e1e", border: "#047857" }, // 딥 에메랄드 (L5)
+const LEVEL_LABELS = {
+  1: "Lv.1 단순 수신",
+  2: "Lv.2 상품 신규/변경",
+  3: "Lv.3 개인 여신",
+  4: "Lv.4 담보/복합",
+  5: "Lv.5 기업/특수"
 };
-const maxHourly = Math.max(...HOURLY.map(d => d.total));
 
 export default function Admin_dashboard() {
-  const [tellers, setTellers] = useState(initialTellers);
-  const [queue, setQueue] = useState(initialQueue);
+  const { openModal } = useModal();
+
+  const [tellers, setTellers] = useState([]);         
+  const [queue, setQueue] = useState([]);             
+  const [mainStats, setMainStats] = useState({ totalWaiting: 0, totalCompleted: 0 }); 
+  
+  const [taskRatioError, setTaskRatioError] = useState(null); 
+
+  const [taskRatios, setTaskRatios] = useState([
+    { lv: 1, label: LEVEL_LABELS[1], pct: 0 },
+    { lv: 2, label: LEVEL_LABELS[2], pct: 0 },
+    { lv: 3, label: LEVEL_LABELS[3], pct: 0 },
+    { lv: 4, label: LEVEL_LABELS[4], pct: 0 },
+    { lv: 5, label: LEVEL_LABELS[5], pct: 0 },
+  ]);
+
+  const [hourlyData] = useState(MOCK_HOURLY_DATA);
   const [noticeText, setNoticeText] = useState("");
   const [toastMsg, setToastMsg] = useState(null);
-  
-  // 모달 및 이관 제어 State
   const [isTransferModalOpen, setIsTransferModalOpen] = useState(false);
   const [selectedCustomerToTransfer, setSelectedCustomerToTransfer] = useState(null);
-  
-  // CustomModal(공통 모달) 제어용 State
-  const [confirmModalData, setConfirmModalData] = useState({ isOpen: false, customerId: null, customerName: "", newTellerId: null, tellerName: "" });
-  const [successModalOpen, setSuccessModalOpen] = useState(false);
-
-  // 시계 & 타이머
   const [time, setTime] = useState(new Date());
+
+  // 1. 상단 통계 조회
+  const fetchMainStats = async () => {
+    try {
+      const res = await fetch('/api/member/main-stats');
+      if (res.ok) {
+        const data = await res.json();
+        if (data.result === 'SUCCESS') {
+          setMainStats({ 
+            totalWaiting: data.totalWaiting || 0, 
+            totalCompleted: data.totalCompleted || 0 
+          });
+        }
+      }
+    } catch (err) { console.error(err); }
+  };
+
+  // 2. 대기열 명단 조회
+  const fetchWaitingList = async () => {
+    try {
+      const res = await fetch('/api/member/waiting-list');
+      if (res.ok) {
+        const data = await res.json();
+        if (data.result === 'SUCCESS' && Array.isArray(data.data)) {
+          const mappedQueue = data.data.map(q => {
+            let calcLevel = 1;
+            if (q.taskType?.includes("기업") || q.taskType?.includes("특수")) calcLevel = 5;
+            else if (q.taskType?.includes("대출") || q.taskType?.includes("여신")) calcLevel = 4;
+            else if (q.taskType?.includes("상담") || q.taskType?.includes("펀드")) calcLevel = 3;
+            else if (q.taskType?.includes("수신") || q.taskType?.includes("예금")) calcLevel = 2;
+
+            return {
+              id: q.ticketNumber,
+              taskId: q.taskId,
+              name: q.userName,
+              prediction: q.taskType,
+              assignedTo: q.memberId,
+              assignedName: q.memberName,
+              level: calcLevel, 
+            };
+          });
+          setQueue(mappedQueue);
+        }
+      }
+    } catch (err) { console.error(err); }
+  };
+
+  // 3. 레벨별 업무 비율 조회 
+  const fetchTaskRatio = async () => {
+    try {
+      const res = await fetch('/api/member/task-ratio');
+      
+      if (!res.ok) {
+        setTaskRatioError(`백엔드 서버 에러 발생! (HTTP ${res.status})`);
+        return;
+      }
+      
+      const data = await res.json();
+      if (data.result === 'SUCCESS' && Array.isArray(data.ratios)) {
+        setTaskRatioError(null); 
+        
+        let totalTasks = 0;
+        const parsedData = data.ratios.map(r => {
+          let lv = 1, cnt = 0;
+          for (let key in r) {
+            const val = r[key];
+            const k = key.toLowerCase();
+            if (k.includes('level') || k.includes('lv')) lv = Number(String(val).replace(/[^0-9]/g, '')) || 1;
+            if (k.includes('count') || k.includes('cnt')) cnt = Number(String(val).replace(/[^0-9]/g, '')) || 0;
+          }
+          totalTasks += cnt;
+          return { lv, cnt };
+        });
+
+    
+        const mappedRatios = [1, 2, 3, 4, 5].map(targetLv => {
+          const matched = parsedData.filter(p => p.lv === targetLv);
+          const count = matched.reduce((sum, p) => sum + p.cnt, 0);
+          const pct = totalTasks > 0 ? Math.round((count / totalTasks) * 100) : 0;
+          return { 
+            lv: targetLv, 
+            label: LEVEL_LABELS[targetLv], 
+            pct: pct 
+          };
+        });
+        
+        setTaskRatios(mappedRatios);
+      } else {
+        setTaskRatioError(`백엔드 데이터 응답 실패 (${data.result || '알 수 없음'})`);
+      }
+    } catch (err) { 
+      console.error(err); 
+      setTaskRatioError("서버와의 통신에 실패했습니다.");
+    }
+  };
+
+  // 4. 창구 현황 조회 
+  const fetchCounterStatus = async () => {
+    try {
+      const res = await fetch('/api/member/counter-status');
+      if (res.ok) {
+        const data = await res.json();
+        const rawList = data.SUCCESS || data.right || []; 
+        if (Array.isArray(rawList)) {
+          const now = new Date().getTime();
+          const mappedTellers = rawList.map(t => {
+            let calculatedElapsed = 0;
+            if (t.currentTaskStatus === '업무중' && t.taskStartedAt) {
+              const startTime = new Date(t.taskStartedAt).getTime();
+              calculatedElapsed = Math.floor((now - startTime) / 1000); 
+            }
+            return {
+              id: t.memberId,
+              name: t.memberName,
+              level: t.memberLevel,
+              role: t.memberRank || '행원',
+              processed: t.todayCompletedCount || 0,
+              status: t.currentTaskStatus,
+              startTimeRaw: t.taskStartedAt,
+              elapsedTime: Math.max(0, calculatedElapsed)
+            };
+          });
+
+          mappedTellers.sort((a, b) => {
+            if (a.level === b.level) return a.name.localeCompare(b.name);
+            return a.level - b.level;
+          });
+
+          setTellers(mappedTellers);
+        }
+      }
+    } catch (err) { console.error(err); }
+  };
+
+  // 데이터 갱신 및 타이머
   useEffect(() => {
-    const timer = setInterval(() => {
+    const fetchAll = () => { 
+      fetchMainStats(); 
+      fetchWaitingList(); 
+      fetchTaskRatio(); 
+      fetchCounterStatus(); 
+    };
+    fetchAll(); 
+    const dataInterval = setInterval(fetchAll, 3000);
+    const clockTimer = setInterval(() => {
       setTime(new Date());
-      setTellers(prev => prev.map(t => 
-        t.status === "active" ? { ...t, elapsedTime: t.elapsedTime + 1 } : t
-      ));
+      setTellers(prev => prev.map(t => {
+        if (t.status === '업무중' && t.startTimeRaw) {
+           return { 
+             ...t, 
+             elapsedTime: Math.max(0, Math.floor((new Date().getTime() - new Date(t.startTimeRaw).getTime()) / 1000)) 
+           };
+        }
+        return t;
+      }));
     }, 1000);
-    return () => clearInterval(timer);
+    return () => { clearInterval(dataInterval); clearInterval(clockTimer); };
   }, []);
 
   const timeStr = time.toLocaleTimeString("ko-KR", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
-
+  
   const formatTime = (seconds) => {
+    if (!seconds) return "00:00";
     const m = Math.floor(seconds / 60).toString().padStart(2, "0");
     const s = (seconds % 60).toString().padStart(2, "0");
     return `${m}:${s}`;
   };
 
-  const totalWaiting = queue.length + 15; 
-  const activeTellersCount = tellers.filter(t => t.status === "active").length;
-  const totalProcessedToday = tellers.reduce((acc, t) => acc + t.processed, 0);
+  const maxHourly = Math.max(...hourlyData.map(d => d.total), 1);
 
-  const handleSendNotice = () => {
-    if(!noticeText.trim()) return;
-    setToastMsg(`전체 창구에 공지가 전송되었습니다: "${noticeText}"`);
-    setNoticeText("");
-    setTimeout(() => setToastMsg(null), 3000);
+  // 공지사항 전송
+  const handleSendNotice = async () => {
+    if (!noticeText.trim()) return;
+    try {
+      const res = await fetch('/api/member/notice', {
+        method: 'POST', 
+        headers: { 'Content-Type': 'application/json' }, 
+        credentials: 'include', 
+        body: JSON.stringify({ message: noticeText }) 
+      });
+      if (res.ok) {
+        setToastMsg(`공지가 전송되었습니다: "${noticeText}"`); 
+        setNoticeText(""); 
+        setTimeout(() => setToastMsg(null), 3000);
+      }
+    } catch (err) { console.error(err); }
   };
 
-  // 1. 셀렉트박스 선택 시 -> "이관 확인" 모달 열기
-  const triggerTransferConfirm = (customerId, customerName, newTellerId) => {
+  // 강제 창구 이관 실행
+  const triggerTransferConfirm = (taskId, customerName, newTellerId, taskLevel) => {
     const selectedTeller = tellers.find(t => t.id === newTellerId);
-    setConfirmModalData({
-      isOpen: true,
-      customerId: customerId,
-      customerName: customerName,
-      newTellerId: newTellerId,
-      tellerName: selectedTeller ? selectedTeller.name : ""
+    if (!selectedTeller) return;
+
+    if (selectedTeller.level < taskLevel) {
+      openModal({
+        message: `[배정 불가]\n${selectedTeller.name} 행원(Lv.${selectedTeller.level})은\nLv.${taskLevel} 업무를 처리할 권한이 없습니다.`,
+        confirmText: "확인"
+      });
+      return;
+    }
+    
+    openModal({
+      message: `[${selectedTeller.name}] 창구로\n[${customerName}] 고객님을 이관하시겠습니까?`,
+      confirmText: "이관 실행",
+      cancelText: "취소",
+      onConfirm: async () => {
+        try {
+          const res = await fetch(`/api/kiosk/toss-admin?taskId=${taskId}&targetMemberId=${newTellerId}`, { method: 'PATCH' });
+          const data = await res.json();
+          if (data.result === 'SUCCESS') {
+            setQueue(prev => prev.map(q => q.taskId === taskId ? { ...q, assignedTo: newTellerId } : q));
+            setSelectedCustomerToTransfer(null);
+            fetchWaitingList(); 
+            fetchCounterStatus(); 
+            setTimeout(() => { openModal({ message: "해당 고객이 성공적으로 이관되었습니다.", confirmText: "확인" }); }, 300);
+          } else if (data.result === 'FAILURE_SESSION') {
+            openModal({ message: "세션이 만료되었거나 관리자 권한이 없습니다.", confirmText: "확인" });
+          } else {
+            openModal({ message: `이관 실패: ${data.result}`, confirmText: "확인" });
+          }
+        } catch (err) {
+          console.error("이관 통신 오류:", err); 
+          openModal({ message: "서버 통신 중 오류가 발생했습니다.", confirmText: "확인" });
+        }
+      }
     });
   };
 
-  // 2. "이관 확인" 모달에서 [이관 실행] 클릭 시 -> 이관 처리 후 "완료 모달" 띄우기
-  const executeTransfer = () => {
-    const { customerId, newTellerId } = confirmModalData;
-    
-    // 이관 처리
-    setQueue(prev => prev.map(q => 
-      q.id === customerId ? { ...q, assignedTo: newTellerId } : q
-    ));
-    
-    // 상태 초기화 및 모달 전환
-    setConfirmModalData({ isOpen: false, customerId: null, customerName: "", newTellerId: null, tellerName: "" });
-    setSelectedCustomerToTransfer(null);
-    setSuccessModalOpen(true); // 완료 모달 띄우기
-  };
-
-  const top5Queue = [...queue]
-    .sort((a, b) => (b.isIssue === a.isIssue ? 0 : b.isIssue ? 1 : -1))
-    .slice(0, 5);
-
   return (
     <div className={styles.adminRoot}>
-      {/* 헤더 */}
       <header className={styles.header}>
-        <div className={styles.logo}>
-
-          <span> 창구 관리 시스템</span>
-        </div>
-        <div style={{ fontSize: 14, color: "#64748b", fontWeight: 600, fontVariantNumeric: "tabular-nums" }}>
-          {timeStr}
-        </div>
+        <div className={styles.logo}><span>창구 관리 시스템</span></div>
+        <div style={{ fontSize: 14, color: "#64748b", fontWeight: 600, fontVariantNumeric: "tabular-nums" }}>{timeStr}</div>
       </header>
 
       <main className={styles.main}>
-        {/* Top: 실시간 긴급 지표 & 공지 전송 */}
         <div className={styles.topRow}>
           <div className={`${styles.kpiCard} ${styles.kpiClickable}`} onClick={() => setIsTransferModalOpen(true)}>
-            <div className={styles.kpiLabel}>전체 대기 인원 </div>
-            <div className={styles.kpiValue} style={{ color: "#009A83" }}>
-              {totalWaiting} <span style={{ fontSize: 16, color: "#009A83" }}>명</span>
-            </div>
+            <div className={styles.kpiLabel}>전체 대기 인원</div>
+            <div className={styles.kpiValue} style={{ color: "#009A83" }}>{mainStats.totalWaiting}<span style={{ fontSize: 16 }}> 명</span></div>
           </div>
-
           <div className={styles.kpiCard}>
-            <div className={styles.kpiLabel}>처리중 창구 현황</div>
-            <div className={styles.kpiValue} style={{ color: "#009A83" }}>
-              {activeTellersCount} <span style={{ fontSize: 16, color: "#009A83" }}>개</span>
-            </div>
+            <div className={styles.kpiLabel}>운영중 창구 현황</div>
+            <div className={styles.kpiValue} style={{ color: "#009A83" }}>{tellers.length}<span style={{ fontSize: 16 }}> 개</span></div>
           </div>
-
           <div className={styles.kpiCard}>
             <div className={styles.kpiLabel}>오늘 총 처리 건수</div>
-            <div className={styles.kpiValue} style={{ color: "#009A83" }}>
-              {totalProcessedToday} <span style={{ fontSize: 16, color: "#009A83" }}>건</span>
-            </div>
+            <div className={styles.kpiValue} style={{ color: "#009A83" }}>{mainStats.totalCompleted}<span style={{ fontSize: 16 }}> 건</span></div>
           </div>
-
           <div className={`${styles.kpiCard} ${styles.noticeWrap}`}>
             <div className={styles.kpiLabel}>&nbsp;&nbsp;&nbsp;전 창구 공지 전송</div>
             <div className={styles.noticeInputGroup}>
-              <input 
-                type="text" 
-                className={styles.noticeInput} 
-                placeholder="공지사항을 입력하세요." 
-                value={noticeText}
-                onChange={(e) => setNoticeText(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && handleSendNotice()}
-              />
+              <input type="text" className={styles.noticeInput} placeholder="공지사항을 입력하세요." value={noticeText} onChange={(e) => setNoticeText(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && handleSendNotice()} />
               <button className={styles.noticeBtn} onClick={handleSendNotice}>전송</button>
             </div>
           </div>
         </div>
 
-        {/* Middle: 관제 & 통계 */}
         <div className={styles.grid2Col}>
-          {/* 좌측: 직원별 창구 모니터링 */}
           <div className={styles.panel}>
-            <div className={styles.panelTitle}>
-              <span style={{ color: "#22c55e" }}></span> 실시간 창구 모니터링
-            </div>
-            {tellers.map(t => {
-              const isDelayed = t.elapsedTime >= 1200;
-              return (
-                <div key={t.id} className={`${styles.tellerRow} ${isDelayed ? styles.delayed : ''}`}>
-                  <div className={styles.tellerLeft}>
-                    <div className={styles.tLevel} style={{ background: LEVEL_COLORS[t.level].bg, color: LEVEL_COLORS[t.level].text }}>
-                      L{t.level}
+            <div className={styles.panelTitle}><span style={{ color: "#22c55e" }}></span> 실시간 창구 모니터링</div>
+            {tellers.length === 0 ? (
+              <div style={{ textAlign: "center", padding: "40px 0", color: "#94a3b8", fontSize: 14 }}>활성 창구 정보가 없습니다.</div>
+            ) : (
+              tellers.map(t => {
+                const isDelayed = (t.elapsedTime || 0) >= 1200; 
+                return (
+                  <div key={t.id || t.name} className={`${styles.tellerRow} ${isDelayed ? styles.delayed : ''}`}>
+                    <div className={styles.tellerLeft}>
+                      <div className={`${styles.tLevel} ${styles[`levelBadge${t.level || 1}`]}`}>L{t.level || 1}</div>
+                      <div className={styles.tNameGroup}><span className={styles.tName}>{t.name}</span><span className={styles.tRole}>{t.role}</span></div>
                     </div>
-                    <div className={styles.tNameGroup}>
-                      <span className={styles.tName}>{t.name}</span>
-                      <span className={styles.tRole}>{t.role}</span>
-                    </div>
-                  </div>
-
-                  <div className={styles.tellerRight}>
-                    <div className={`${styles.tTime} ${isDelayed ? styles.tTimeDelayedText : ''}`}>
-                      {t.status === "active" ? formatTime(t.elapsedTime) : "--:--"}
-                    </div>
-                    
-                    <div className={styles.tStatusWrapper}>
-                      {t.status === "active" ? (
-                        <span className={styles.tStatusBadge} style={{ background: isDelayed ? "#fee2e2" : "#dcfce7", color: isDelayed ? "" : "#166534" }}>
-                          {isDelayed ? "️업무 지연" : "업무중"}
-                        </span>
-                      ) : (
-                        <span className={styles.tStatusBadge} style={{ background: "#f1f5f9", color: "#64748b" }}>대기중</span>
-                      )}
-                      <span className={styles.tStatsInfo}>| 처리 {t.processed}건 · 대기 {t.queue}명</span>
+                    <div className={styles.tellerRight}>
+                      <div className={`${styles.tTime} ${isDelayed ? styles.tTimeDelayedText : ''}`}>{t.status === "업무중" ? formatTime(t.elapsedTime) : "--:--"}</div>
+                      <div className={styles.tStatusWrapper}>
+                        {t.status === "업무중" ? (
+                          <span className={styles.tStatusBadge} style={{ background: isDelayed ? "#fee2e2" : "#dcfce7", color: isDelayed ? "#991b1b" : "#166534" }}>{isDelayed ? "업무 지연" : "업무중"}</span>
+                        ) : (
+                          <span className={styles.tStatusBadge} style={{ background: "#f1f5f9", color: "#64748b" }}>대기중</span>
+                        )}
+                        <span className={styles.tStatsInfo}>| 처리 {t.processed || 0}건 · 대기 {queue.filter(q => q.assignedTo === t.id).length}명</span>
+                      </div>
                     </div>
                   </div>
-                </div>
-              );
-            })}
+                );
+              })
+            )}
           </div>
 
-          {/* 우측: 현황 차트 */}
           <div className={styles.panel}>
-            <div className={styles.panelTitle}>
-           시간대별 예상 혼잡도
-            </div>
+            <div className={styles.panelTitle}>시간대별 예상 혼잡도</div>
             <div className={styles.chartContainer}>
               <div className={styles.chartBars}>
-                {HOURLY.map((d, i) => {
-                  const isNow = d.h === "14";
+                {hourlyData.map((d, i) => {
+                  const isNow = d.h === String(new Date().getHours()).padStart(2, "0");
                   return (
                     <div key={i} className={styles.barCol}>
                       <div style={{ fontSize: 11, color: isNow ? "#031714" : "#94a3b8", fontWeight: isNow ? 800 : 500, marginBottom: 4 }}>{d.total}</div>
-                      <div className={styles.barFill} style={{ 
-                        height: `${(d.total / maxHourly) * 100}%`,
-                        background: isNow ? "linear-gradient(180deg, #009A83, #007f6b)" : "#e2e8f0"
-                      }} />
+                      <div className={styles.barFill} style={{ height: `${(d.total / maxHourly) * 100}%`, background: isNow ? "linear-gradient(180deg, #009A83, #007f6b)" : "#e2e8f0" }} />
                       <div className={styles.barLabel}>{d.h}시</div>
                     </div>
                   );
@@ -230,51 +346,48 @@ export default function Admin_dashboard() {
             </div>
 
             <div className={styles.ratioContainer}>
-              <div className={styles.panelTitle} style={{ fontSize: 13, marginBottom: 12 }}>레벨별 업무 비율 </div>
-              <div className={styles.ratioList}>
-                {[
-                  { lv: 1, label: "단순 수신", pct: 38 },
-                  { lv: 2, label: "상품 신규/변경", pct: 31 },
-                  { lv: 3, label: "개인 여신", pct: 18 },
-                  { lv: 4, label: "담보/복합", pct: 9 },
-                  { lv: 5, label: "기업/특수", pct: 4 },
-                ].map(r => (
-                  <div key={r.lv}>
-                    <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
-                      <span style={{ fontSize: 12, color: LEVEL_COLORS[r.lv].text, fontWeight: 700 }}>Lv.{r.lv} {r.label}</span>
-                      <span style={{ fontSize: 12, color: "#64748b", fontWeight: 600 }}>{r.pct}%</span>
+              <div className={styles.panelTitle} style={{ fontSize: 13, marginBottom: 12 }}>레벨별 업무 비율</div>
+              {taskRatioError ? (
+                <div style={{ color: "#ef4444", background: "#fee2e2", border: "1px solid #fca5a5", borderRadius: "8px", padding: "16px", textAlign: "center", fontSize: "13px", fontWeight: "bold" }}>⚠️ {taskRatioError}</div>
+              ) : (
+                <div className={styles.ratioList}>
+                  {taskRatios.map(r => (
+                    <div key={r.lv}>
+                      <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
+                        <span className={styles[`levelText${r.lv}`]} style={{ fontSize: 12, fontWeight: 700 }}>{r.label}</span>
+                        <span style={{ fontSize: 12, color: "#64748b", fontWeight: 600 }}>{r.pct}%</span>
+                      </div>
+                      <div style={{ height: 8, background: "#f1f5f9", borderRadius: 4 }}>
+                        <div className={styles[`levelFill${r.lv}`]} style={{ height: "100%", width: `${r.pct}%`, borderRadius: 4 }} />
+                      </div>
                     </div>
-                    <div style={{ height: 8, background: "#f1f5f9", borderRadius: 4 }}>
-                      <div style={{ height: "100%", width: `${r.pct}%`, background: LEVEL_COLORS[r.lv].text, borderRadius: 4 }} />
-                    </div>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         </div>
 
-        {/* Bottom: AI 예측 대기열 */}
         <div className={styles.panel}>
-          <div className={styles.panelTitle}>
-             AI 예측 대기열
-          </div>
-          <div className={styles.aiGrid}>
-            {top5Queue.map((q) => (
-              <div key={q.id} className={styles.aiCard} style={{ borderTop: q.isIssue ? "3px solid #009d84" : "3px solid #cbd5e1" }}>
-                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}>
-                  <span style={{ fontSize: 14, fontWeight: 800 }}>{q.id}</span>
-                  <span style={{ fontSize: 12, fontWeight: 700, color: "#009A83" }}>예상 {q.expectedMins}분</span>
+          <div className={styles.panelTitle}>현재 상위 대기열 (최대 5명)</div>
+          {queue.slice(0, 5).length === 0 ? (
+            <div style={{ textAlign: "center", padding: "30px 0", color: "#94a3b8", fontSize: 14 }}>현재 대기 중인 고객이 없습니다.</div>
+          ) : (
+            <div className={styles.aiGrid}>
+              {queue.slice(0, 5).map((q) => (
+                <div key={q.taskId} className={styles.aiCard} style={{ borderTop: "3px solid #cbd5e1" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}>
+                    <span style={{ fontSize: 14, fontWeight: 800 }}>{q.id} 고객</span><span style={{ fontSize: 12, fontWeight: 700, color: "#009A83" }}>대기중</span>
+                  </div>
+                  <div style={{ fontSize: 13, color: "#475569", marginBottom: 4, fontWeight: 500 }}>{q.name} 고객님</div>
+                  <div className={styles[`levelText${q.level || 1}`]} style={{ fontSize: 15, fontWeight: 800 }}>{q.prediction}</div>
                 </div>
-                <div style={{ fontSize: 13, color: "#475569", marginBottom: 4, fontWeight: 500 }}>{q.name} 고객님</div>
-                <div style={{ fontSize: 15, fontWeight: 800, color: LEVEL_COLORS[q.level].text }}>{q.prediction}</div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </div>
       </main>
 
-      {/* --- 강제 이관 대기열 리스트 --- */}
       {isTransferModalOpen && (
         <div className={styles.modalOverlay} onClick={() => setIsTransferModalOpen(false)}>
           <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
@@ -282,120 +395,60 @@ export default function Admin_dashboard() {
               <h2 style={{ fontSize: 18, fontWeight: 800, margin: 0 }}>전체 대기열 및 강제 창구 이관</h2>
               <button onClick={() => setIsTransferModalOpen(false)} style={{ border: "none", background: "none", fontSize: 24, cursor: "pointer", color: "#64748b" }}>×</button>
             </div>
-            
-            <div style={{ overflowY: "auto", flex: 1 }}>
-              <table className={styles.table}>
-                <colgroup>
-                  <col style={{ width: '12%' }} />
-                  <col style={{ width: '15%' }} />
-                  <col style={{ width: '23%' }} />
-                  <col style={{ width: '22%' }} />
-                  <col style={{ width: '28%' }} />
-                </colgroup>
-                <thead>
-                  <tr>
-                    <th>대기번호</th>
-                    <th>고객명</th>
-                    <th>업무</th>
-                    <th>배정된 창구</th>
-                    <th>관리</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {queue.map(q => {
-                    const assigned = tellers.find(t => t.id === q.assignedTo);
-                    const isEditing = selectedCustomerToTransfer === q.id;
-                    
-                    return (
-                      <tr key={q.id}>
-                        <td style={{ fontWeight: 800 }}>{q.id}</td>
-                        <td>{q.name}</td>
-                        <td>
-                          <span style={{ color: LEVEL_COLORS[q.level].text, fontWeight: 700 }}>{q.prediction}</span>
-                        </td>
-                        <td>
-                          {assigned && (
-                            <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                              <span style={{ width: 8, height: 8, borderRadius: "50%", background: assigned.status === 'active' ? '#ef4444' : '#22c55e' }} />
-                              {assigned.id}번 창구 ({assigned.name})
-                            </div>
-                          )}
-                        </td>
-                        <td>
-                          {isEditing ? (
-                            <div className={styles.actionWrapper}>
-                              <select 
-                                className={styles.selectBox}
-                                onChange={(e) => triggerTransferConfirm(q.id, q.name, Number(e.target.value))}
-                                defaultValue={assigned ? assigned.id : ""}
-                              >
-                                {tellers.map(t => (
-                                  <option key={t.id} value={t.id}>
-                                    {t.id}번 창구 ({t.name})
-                                  </option>
-                                ))}
-                              </select>
-                              <button 
-                                className={styles.cancelBtn} 
-                                onClick={() => setSelectedCustomerToTransfer(null)}
-                              >
-                                취소
-                              </button>
-                            </div>
-                          ) : (
-                            <button 
-                              className={styles.changeBtn}
-                              onClick={() => setSelectedCustomerToTransfer(q.id)}
-                            >
-                              이관 변경
-                            </button>
-                          )}
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
+          
+            <div style={{ overflowY: "auto", maxHeight: "400px", borderBottom: "1px solid #e2e8f0" }}>
+              {queue.length === 0 ? (
+                <div style={{ textAlign: "center", padding: "40px 0", color: "#94a3b8", fontSize: 14 }}>현재 대기 중인 고객이 없습니다.</div>
+              ) : (
+                <table className={styles.table}>
+                  <colgroup><col style={{ width: '12%' }} /><col style={{ width: '15%' }} /><col style={{ width: '23%' }} /><col style={{ width: '22%' }} /><col style={{ width: '28%' }} /></colgroup>
+                  <thead style={{ position: "sticky", top: 0, backgroundColor: "#fff", zIndex: 10 }}>
+                    <tr><th>대기번호</th><th>고객명</th><th>업무</th><th>배정된 창구</th><th>관리</th></tr>
+                  </thead>
+                  <tbody>
+                    {queue.map(q => {
+                      const assigned = tellers.find(t => t.id === q.assignedTo);
+                      const isEditing = selectedCustomerToTransfer === q.taskId;
+                      return (
+                        <tr key={q.taskId}>
+                          <td style={{ fontWeight: 800 }}>{q.id}</td><td>{q.name}</td>
+                          <td><span className={styles[`levelText${q.level || 1}`]} style={{ fontWeight: 700 }}>{q.prediction}</span></td>
+                          <td>
+                            {assigned ? (
+                              <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                                <span style={{ width: 8, height: 8, borderRadius: "50%", background: assigned.status === '업무중' ? '#ef4444' : '#22c55e' }} />{assigned.id}번 창구 ({assigned.name})
+                              </div>
+                            ) : ( <span style={{ color: "#94a3b8" }}>미배정</span> )}
+                          </td>
+                          <td>
+                            {isEditing ? (
+                              <div className={styles.actionWrapper}>
+                                <select className={styles.selectBox} onChange={(e) => triggerTransferConfirm(q.taskId, q.name, Number(e.target.value), q.level)} defaultValue={assigned ? assigned.id : ""}>
+                                  <option value="" disabled>창구 선택</option>
+                                  {/* 💡 [정렬] 드롭다운 메뉴는 직관적인 '창구 번호순'으로 정렬! (깔끔한 기본 텍스트) */}
+                                  {[...tellers].sort((a, b) => a.id - b.id).map(t => ( 
+                                    <option key={t.id} value={t.id}>{t.id}번 창구 ({t.name})</option> 
+                                  ))}
+                                </select>
+                                <button className={styles.cancelBtn} onClick={() => setSelectedCustomerToTransfer(null)}>취소</button>
+                              </div>
+                            ) : (
+                              <button className={styles.changeBtn} onClick={() => setSelectedCustomerToTransfer(q.taskId)}>이관 변경</button>
+                            )}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              )}
             </div>
           </div>
         </div>
       )}
 
-      {/* 이관 확인 팝업 */}
-      <CustomModal
-        isOpen={confirmModalData.isOpen}
-        onClose={() => setConfirmModalData({ ...confirmModalData, isOpen: false })}
-        title="이관 확인"
-        onConfirm={executeTransfer}
-        onCancel={() => setConfirmModalData({ ...confirmModalData, isOpen: false })}
-        confirmText="이관 실행"
-        cancelText="취소"
-      >
-        <div style={{ textAlign: "center", padding: "20px 0", fontSize: "15px", lineHeight: "1.6", color: "#334155" }}>
-          선택하신 <strong style={{ color: "#009A83" }}>{confirmModalData.tellerName}</strong> 창구로 <br />
-          <strong>{confirmModalData.customerName}</strong> 고객님을 이관하시겠습니까?
-        </div>
-      </CustomModal>
-
-      {/* 이관 성공 완료 팝업 */}
-      <CustomModal
-        isOpen={successModalOpen}
-        onClose={() => setSuccessModalOpen(false)}
-        title="이관 완료"
-        onConfirm={() => setSuccessModalOpen(false)}
-        confirmText="확인"
-      >
-        <div style={{ textAlign: "center", padding: "20px 0", fontSize: "15px", color: "#334155" }}>
-          해당 고객이 성공적으로 이관되었습니다.
-        </div>
-      </CustomModal>
-
-      {/* 글로벌 토스트 알림 */}
-      {toastMsg && (
-        <div className={styles.toast}>
-          ✓ {toastMsg}
-        </div>
-      )}
+      {/* 토스트 알림 */}
+      {toastMsg && <div className={styles.toast}>✓ {toastMsg}</div>}
     </div>
   );
 }

@@ -419,7 +419,6 @@
   white-space: nowrap;
 }
 
-/* 토스트 알림 */
 .toast {
   position: fixed;
   bottom: 30px;
@@ -440,3 +439,25 @@
   from { bottom: 0; opacity: 0; }
   to { bottom: 30px; opacity: 1; }
 }
+
+
+/* 창구 모니터링 */
+.levelBadge1 { background: #f0fdf4; color: #419460; }
+.levelBadge2 { background: #dcfce7; color: #15803d; }
+.levelBadge3 { background: #bbf7d0; color: #166534; }
+.levelBadge4 { background: #86efac; color: #065f46; }
+.levelBadge5 { background: #059669; color: #072f10; }
+
+/* 글자 색상용  */
+.levelText1 { color: #419460; }
+.levelText2 { color: #15803d; }
+.levelText3 { color: #166534; }
+.levelText4 { color: #065f46; }
+.levelText5 { color: #072f10; }
+
+/* 차트 막대그래프  */
+.levelFill1 { background: #419460; }
+.levelFill2 { background: #15803d; }
+.levelFill3 { background: #166534; }
+.levelFill4 { background: #065f46; }
+.levelFill5 { background: #072f10; }
