@@ -1,18 +1,16 @@
-/* Admin_dashboard.module.css */
-
 .adminRoot {
   font-family: 'Inter', 'Noto Sans KR', sans-serif;
   background-color: #f8fafc;
   min-height: 100vh;
   color: #334155;
-  font-size: 13px; /* 전체 기본 폰트 사이즈 하향 */
+  font-size: 13px;
 }
 
 .header {
   background: #fff;
   border-bottom: 1px solid #e2e8f0;
   padding: 0 24px;
-  height: 48px; /* 60px -> 48px */
+  height: 48px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -27,12 +25,21 @@
   letter-spacing: -0.3px;
   color: #333;
 }
+
+.headerTime {
+  font-size: 14px;
+  color: #64748b;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
 .main {
-  padding: 16px 24px; /* 여백 축소 */
-  max-width: 1600px; /* 더 넓게 활용 */
+  padding: 16px 24px;
+  max-width: 1600px;
   margin: 0 auto;
 }
-/* 상단 KPI & 공지 */
+
+/*KPI 상단*/
 .topRow {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr 1.8fr;
@@ -56,13 +63,10 @@
 
 .kpiClickable {
   cursor: pointer;
-  border: 1px solid #009A83;
+  border-color: #009A83;
   box-shadow: 0 4px 12px rgba(0,154,131,0.15);
 }
-
-.kpiClickable:hover {
-  transform: translateY(-2px);
-}
+.kpiClickable:hover { transform: translateY(-2px); }
 
 .kpiLabel {
   font-size: 13px;
@@ -74,22 +78,19 @@
 .kpiValue {
   font-size: 34px;
   font-weight: 700;
+  color: #009A83;
   display: flex;
   align-items: baseline;
   justify-content: center;
   gap: 6px;
 }
 
-/* 공지 입력창 */
-.noticeWrap {
-  align-items: stretch;
-  text-align: left;
-}
+.kpiUnit { font-size: 16px; }
 
-.noticeInputGroup {
-  display: flex;
-  gap: 8px;
-}
+/* ── 공지 ── */
+.noticeWrap { align-items: stretch; text-align: left; }
+
+.noticeInputGroup { display: flex; gap: 8px; }
 
 .noticeInput {
   flex: 1;
@@ -100,10 +101,7 @@
   outline: none;
   transition: border 0.2s;
 }
-
-.noticeInput:focus {
-  border-color: #009A83;
-}
+.noticeInput:focus { border-color: #009A83; }
 
 .noticeBtn {
   background: #009A83;
@@ -115,12 +113,8 @@
   cursor: pointer;
   transition: background 0.2s;
 }
+.noticeBtn:hover { background: #007f6b; }
 
-.noticeBtn:hover {
-  background: #007f6b;
-}
-
-/* 메인 레이아웃 Grid */
 .grid2Col {
   display: grid;
   grid-template-columns: 1.2fr 1fr;
@@ -148,7 +142,6 @@
   gap: 8px;
 }
 
-/* 직원 상태 행 */
 .tellerRow {
   display: flex;
   align-items: center;
@@ -160,29 +153,18 @@
   transition: all 0.3s;
 }
 
-.tellerLeft {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  flex: 1;
-}
-
-.tellerRight {
-  display: flex;
-  align-items: center;
-  gap: 24px;
-}
+.tellerLeft { display: flex; align-items: center; gap: 16px; flex: 1; }
+.tellerRight { display: flex; align-items: center; gap: 24px; }
 
 .delayed {
   background: #fff5f5;
-
   animation: pulse-red 2s infinite;
 }
 
 @keyframes pulse-red {
-  0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
-  70% { box-shadow: 0 0 0 6px rgba(239, 68, 68, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+  0%   { box-shadow: 0 0 0 0   rgba(239,68,68,0.4); }
+  70%  { box-shadow: 0 0 0 6px rgba(239,68,68,0);   }
+  100% { box-shadow: 0 0 0 0   rgba(239,68,68,0);   }
 }
 
 .tLevel {
@@ -197,45 +179,26 @@
   flex-shrink: 0;
 }
 
-.tNameGroup {
-  display: flex;
-  align-items: baseline;
-  gap: 8px;
-}
+.tNameGroup { display: flex; align-items: baseline; gap: 8px; }
+.tName { font-size: 0.9em; font-weight: 600; color: #1e293b; }
+.tRole { font-size: 0.7rem; color: #64748b; font-weight: 600; }
 
-.tName {
-  font-size: 0.9em;
-  font-weight: 600;
-  color: #1e293b;
-}
-
-.tRole {
-  font-size: 0.7rem;
-  color: #64748b;
-  font-weight: 600;
-}
-
-/* ★ 수정됨: 시간 영역 넉넉한 고정 너비 및 중앙 정렬 ★ */
 .tTime {
   width: 80px;
   font-size: 20px;
   font-weight: 600;
   font-variant-numeric: tabular-nums;
   color: #1e293b;
-  text-align: center; /* 중앙 정렬 */
+  text-align: center;
 }
+.tTimeDelayedText { color: #ef4444; }
 
-.tTimeDelayedText {
-  color: #ef4444;
-}
-
-/* ★ 수정됨: 상태 바 및 건수 영역 고정 너비로 흔들림 완벽 차단 ★ */
 .tStatusWrapper {
   display: flex;
   align-items: center;
   gap: 12px;
-  width: 180px; /* 고정 너비 부여 */
-  justify-content: flex-end; /* 우측 끝선 맞춤 */
+  width: 180px;
+  justify-content: flex-end;
 }
 
 .tStatusBadge {
@@ -246,17 +209,23 @@
   white-space: nowrap;
 }
 
-.tStatsInfo {
-  font-size: 12px;
-  color: #94a3b8;
-  white-space: nowrap;
+.tStatsInfo { 
+  font-size: 12px; 
+  color: #94a3b8; 
+  white-space: nowrap; 
 }
 
-/* 차트 */
-.chartContainer {
-  position: relative;
-  height: 160px;
-  margin-top: 20px;
+.emptyState { 
+  text-align: center; 
+  padding: 40px 0; 
+  color: #94a3b8; 
+  font-size: 14px; 
+}
+
+.chartContainer { 
+  position: relative; 
+  height: 160px; 
+  margin-top: 20px; 
 }
 
 .chartBars {
@@ -295,22 +264,34 @@
   font-weight: 400;
 }
 
-.ratioContainer {
-  margin-top: 40px;
-  flex: 1;
-  display: flex;
-  flex-direction: column;
+/*업무 비율*/
+.ratioContainer { 
+  margin-top: 40px; 
+  flex: 1; 
+  display: flex; 
+  flex-direction: column; 
 }
 
-.ratioList {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  gap: 16px;
+.ratioList { 
+  flex: 1; 
+  display: flex; 
+  flex-direction: column; 
+  justify-content: space-between; 
+  gap: 16px; 
 }
 
-/* 하단 AI 카드 */
+.ratioError {
+  color: #ef4444;
+  background: #fee2e2;
+  border: 1px solid #fca5a5;
+  border-radius: 8px;
+  padding: 16px;
+  text-align: center;
+  font-size: 13px;
+  font-weight: bold;
+}
+
+/* 대기열 */
 .aiGrid {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
@@ -323,15 +304,12 @@
   border-radius: 12px;
   padding: 16px;
   transition: transform 0.2s;
-  position: relative;
+}
+.aiCard:hover { 
+  transform: translateY(-4px); 
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05); 
 }
 
-.aiCard:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-}
-
-/* 대기열 리스트 모달 오버레이 */
 .modalOverlay {
   position: fixed;
   inset: 0;
@@ -390,10 +368,10 @@
   box-sizing: border-box;
 }
 
-.actionWrapper {
-  display: flex;
-  gap: 6px;
-  align-items: center;
+.actionWrapper { 
+  display: flex; 
+  gap: 6px; 
+  align-items: center; 
 }
 
 .changeBtn {
@@ -419,7 +397,6 @@
   white-space: nowrap;
 }
 
-/* 토스트 알림 */
 .toast {
   position: fixed;
   bottom: 30px;
@@ -429,7 +406,6 @@
   color: white;
   padding: 14px 24px;
   border-radius: 30px;
-  font-weight: 400;
   font-size: 14px;
   box-shadow: 0 4px 12px rgba(0,0,0,0.15);
   z-index: 1000;
@@ -438,5 +414,26 @@
 
 @keyframes slideUp {
   from { bottom: 0; opacity: 0; }
-  to { bottom: 30px; opacity: 1; }
+  to   { bottom: 30px; opacity: 1; }
 }
+
+/*레벨 배지*/
+.levelBadge1 { background: #f0fdf4; color: #419460; }
+.levelBadge2 { background: #dcfce7; color: #15803d; }
+.levelBadge3 { background: #bbf7d0; color: #166534; }
+.levelBadge4 { background: #86efac; color: #065f46; }
+.levelBadge5 { background: #059669; color: #072f10; }
+
+/*레벨 텍스트*/
+.levelText1 { color: #419460; }
+.levelText2 { color: #15803d; }
+.levelText3 { color: #166534; }
+.levelText4 { color: #065f46; }
+.levelText5 { color: #072f10; }
+
+/*레벨 막대*/
+.levelFill1 { background: #419460; }
+.levelFill2 { background: #15803d; }
+.levelFill3 { background: #166534; }
+.levelFill4 { background: #065f46; }
+.levelFill5 { background: #072f10; }
