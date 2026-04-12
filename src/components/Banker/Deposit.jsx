@@ -95,7 +95,7 @@ const Deposit = ({ onCancel, onCreate }) => {
                 {/* 5. 하단 버튼 */}
                 <div className={styles.buttonRow}>
                     <button className={styles.btnCancel} onClick={onCancel}>취소</button>
-                    <button className={styles.btnSubmit} onClick={() => onCreate(formData)}>이체 실행</button>
+                    <button className={styles.btnSubmit} onClick={() => onCreate(formData)}>입금 실행</button>
                 </div>
             </div>
         </div>

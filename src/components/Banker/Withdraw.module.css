@@ -125,29 +125,6 @@
 .arrowDown { font-size: 0.8rem; color: #6ED3B9; pointer-events: none; }
 
 /* 하단 버튼 (buttonRow) */
-.buttonRow {
-    display: flex;
-    gap: 15px;
-    margin-top: 10px;
-}
-
-.btnCancel {
-    flex: 1;
-    padding: 10px;
-    background-color: #E2E2E2;
-    border: none;
-    border-radius: 12px;
-    font-weight: 600;
-    cursor: pointer;
-}
-
-.btnSubmit {
-    flex: 1;
-    padding: 10px;
-    background-color: #6ED3B9; /* 출금 실행 버튼 색상 */
-    color: white;
-    border: none;
-    border-radius: 12px;
-    font-weight: 600;
-    cursor: pointer;
-}
+.buttonRow { display: flex; gap: 15px; margin-top: 10px; }
+.btnCancel { flex: 1; padding: 10px; background-color: #E2E2E2; border: none; border-radius: 12px; font-weight: 600; cursor: pointer; }
+.btnSubmit { flex: 1; padding: 10px; background-color: #559E89; color: white; border: none; border-radius: 12px; font-weight: 600; cursor: pointer; }

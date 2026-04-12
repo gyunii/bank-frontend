@@ -11,7 +11,10 @@ import TossModal from '../../components/Banker/TossModal';
 import Deposit from '../../components/Banker/Deposit';
 import Withdraw from "../../components/Banker/Withdraw.jsx";
 import TaskSelect from "../../components/Banker/TaskSelect.jsx";
-
+import Card from "../../components/Banker/Card.jsx";
+import Transfer from "../../components/Banker/Transfer.jsx";
+import LoanPayment from "../../components/Banker/LoanPayment.jsx";
+import FinancialProduct from "../../components/Banker/FinancialProduct.jsx";
 
 const BankerWorkSpace = () => {
     const [tasks, setTasks] = useState([]);
@@ -78,6 +81,27 @@ const BankerWorkSpace = () => {
             case "적금":
                 setSelectedWorkType("ACCOUNTS");
                 break;
+            case "이체" :
+                setSelectedWorkType("TRANSFER")
+                break;
+            case "카드수령":
+                setSelectedWorkType("CARD");
+                break;
+            case "체크카드 발급":
+                setSelectedWorkType("CARD");
+                break;
+            case "신용카드 발급":
+                setSelectedWorkType("CARD");
+                break;
+            case "법인카드 발급":
+                setSelectedWorkType("CARD");
+                break;
+            case "대출 상환" :
+                setSelectedWorkType("LOAN-PAYMENT"); // 수정: "LOAN" -> "LOAN-PAYMENT"
+                break;
+            case "금융상품가입":
+                setSelectedWorkType("FINANCIAL-PRODUCT");
+                break;
             default:
                 setSelectedWorkType(null);
                 break;
@@ -142,7 +166,7 @@ const BankerWorkSpace = () => {
 
             // selectedTask가 IN_PROGRESS이고 계좌 개설 업무이면 폼을 바로 염
             if (selectedTask.status === 'IN_PROGRESS' &&
-                (selectedTask.taskType === "입출금 계좌 개설" || selectedTask.taskDetailType === "계좌 개설")) {
+                (selectedTask.taskDetailType === "입출금 계좌개설" || selectedTask.taskDetailType === "계좌개설" || selectedTask.taskDetailType === "입출금 계좌 개설")) {
                 setSelectedWorkType("ACCOUNT_CREATE");
             }
             if (selectedTask.status === 'IN_PROGRESS' &&
@@ -162,23 +186,28 @@ const BankerWorkSpace = () => {
                 setSelectedWorkType("TRANSFER");
             }
             if (selectedTask.status === 'IN_PROGRESS' &&
-                ( selectedTask.taskDetailType ==="카드수령")) {
-                setSelectedWorkType("CARD-ACCEPT");
+                ( selectedTask.taskDetailType.includes('카드'))) {
+                setSelectedWorkType("CARD");
             }
-            if (selectedTask.status === 'IN_PROGRESS' &&
+            /*if (selectedTask.status === 'IN_PROGRESS' &&
                 ( selectedTask.taskDetailType ==="카드")) {
-                setSelectedWorkType("CHECK-CARD");
+                setSelectedWorkType("CREDIT");
             }
             if (selectedTask.status === 'IN_PROGRESS' &&
-                ( selectedTask.taskDetailType ==="대출상황")) {
+                ( selectedTask.taskDetailType ==="신용카드")) {
+                setSelectedWorkType("CHECK");
+            }*/
+            /*if (selectedTask.status === 'IN_PROGRESS' &&
+                ( selectedTask.taskDetailType ==="법인카드")) {
+                setSelectedWorkType("CORPORATE-CARD");
+            }*/
+            if (selectedTask.status === 'IN_PROGRESS' &&
+                ( selectedTask.taskDetailType ==="대출 상환")) {
                 setSelectedWorkType("LOAN-PAYMENT");
             }
+
             if (selectedTask.status === 'IN_PROGRESS' &&
-                ( selectedTask.taskDetailType ==="카드")) {
-                setSelectedWorkType("CREDIT-CARD");
-            }
-            if (selectedTask.status === 'IN_PROGRESS' &&
-                ( selectedTask.taskDetailType ==="금융상품")) {
+                ( selectedTask.taskDetailType.includes("금융상품"))) {
                 setSelectedWorkType("FINANCIAL-PRODUCT");
             }
             if (selectedTask.status === 'IN_PROGRESS' &&
@@ -193,10 +222,7 @@ const BankerWorkSpace = () => {
                 ( selectedTask.taskDetailType ==="법인계좌")) {
                 setSelectedWorkType("CORPORATE-ACCOUNT");
             }
-            if (selectedTask.status === 'IN_PROGRESS' &&
-                ( selectedTask.taskDetailType ==="법인카드")) {
-                setSelectedWorkType("CORPORATE-CARD");
-            }
+
             if (selectedTask.status === 'IN_PROGRESS' &&
                 ( selectedTask.taskDetailType ==="부도관리")) {
                 setSelectedWorkType("BANKRUPT-MANAGEMENT");
@@ -246,7 +272,6 @@ const BankerWorkSpace = () => {
 
         setInput("");
     };
-
     /* 계좌 생성 함수 */
     const handleCreateAccount = async () => {
         // 1. 사전 검증
@@ -349,8 +374,6 @@ const BankerWorkSpace = () => {
             showAlert("처리 중 예기치 못한 오류가 발생했습니다.");
         }
     };
-
-
     // 업무 수락 취소 (IN_PROGRESS -> WAITING)
     const handleCancelAcceptTask = async (task) => {
         try {
@@ -368,7 +391,7 @@ const BankerWorkSpace = () => {
 
             switch (data.result) {
                 case 'SUCCESS':
-                    { const updatedTask = { ...task, status: 'WAITING' };
+                { const updatedTask = { ...task, status: 'WAITING' };
                     setSelectedTask(updatedTask);
                     setTasks(prevTasks => prevTasks.map(t => t.taskId === task.taskId ? updatedTask : t));
                     setSelectedWorkType(null);
@@ -389,7 +412,6 @@ const BankerWorkSpace = () => {
             showAlert('오류가 발생했습니다.');
         }
     };
-
     // 업무 수락 (WAITING -> IN_PROGRESS)
     const handleAcceptTask = async (task) => {
         try {
@@ -407,7 +429,7 @@ const BankerWorkSpace = () => {
 
             switch (data.result) {
                 case 'SUCCESS':
-                    { const updatedTask = { ...task, status: 'IN_PROGRESS' };
+                { const updatedTask = { ...task, status: 'IN_PROGRESS' };
                     setSelectedTask(updatedTask);
                     setTasks(prevTasks => prevTasks.map(t => t.taskId === task.taskId ? updatedTask : t));
                     await fetchTasks();
@@ -724,7 +746,7 @@ const BankerWorkSpace = () => {
 
                                                         {/*이체*/}
                                                         {selectedWorkType === "TRANSFER" && (
-                                                            <Withdraw
+                                                            <Transfer
                                                                 onCancel={() => {
                                                                     setSelectedWorkType(null);
                                                                     handleCancelAcceptTask(selectedTask); // 원래 로직 복구
@@ -734,7 +756,16 @@ const BankerWorkSpace = () => {
 
                                                         {/*카드수령*/}
                                                         {/*체크카드발급*/}
+                                                        {selectedWorkType === "CARD" && (
+                                                            <Card
+                                                                onCancel={() => {
+                                                                    setSelectedWorkType(null);}}
+                                                                />
+                                                        )}
+
                                                         {/*통장비번변경*/}
+
+
 
                                                         {/*상담업무*/}
                                                         {/*예적금계좌개설*/}
@@ -748,9 +779,26 @@ const BankerWorkSpace = () => {
                                                         )}
 
                                                         {/*신용 카드 발급*/}
+
                                                         {/*대출상환*/}
+                                                        {selectedWorkType === "LOAN-PAYMENT" && (
+                                                            <LoanPayment
+                                                                onCancel={() => {
+                                                                    setSelectedWorkType(null);
+                                                                    handleCancelAcceptTask(selectedTask); // 원래 로직 복구
+                                                                }}
+                                                                />
+                                                        )}
                                                         {/*금융상품가입: 보험, 펀드 ,대출등*/}
 
+                                                        {selectedWorkType === "FINANCIAL-PRODUCT" && (
+                                                            <FinancialProduct
+                                                                onCancel={() => {
+                                                                    setSelectedWorkType(null);
+                                                                    handleCancelAcceptTask(selectedTask); // 원래 로직 복구
+                                                                }}
+                                                            />
+                                                        )}
                                                         {/*기업 • 특수업무*/}
                                                         {/*기업대출*/}
                                                         {/*법인계좌개설*/}
