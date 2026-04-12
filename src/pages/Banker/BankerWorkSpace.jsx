@@ -97,7 +97,7 @@ const BankerWorkSpace = () => {
                 setSelectedWorkType("CARD");
                 break;
             case "대출 상환" :
-                setSelectedWorkType("LOAN-PAYMENT"); // 수정: "LOAN" -> "LOAN-PAYMENT"
+                setSelectedWorkType("LOAN-PAYMENT");
                 break;
             case "금융상품가입":
                 setSelectedWorkType("FINANCIAL-PRODUCT");
@@ -618,8 +618,8 @@ const BankerWorkSpace = () => {
                                                             className={styles.btnToss}
                                                             onClick={(e) => {
                                                                 e.stopPropagation();
-                                                                setTaskToToss(task); // 이관할 태스크 저장
-                                                                setIsTossModalOpen(true); // 모달 열기
+                                                                setTaskToToss(task);
+                                                                setIsTossModalOpen(true);
                                                             }}
                                                         >
                                                             창구이관
@@ -718,7 +718,7 @@ const BankerWorkSpace = () => {
                                                                 setConfirmPassword={setConfirmPassword}
                                                                 onCancel={() => {
                                                                     setSelectedWorkType(null);
-                                                                    handleCancelAcceptTask(selectedTask); // 원래 로직 복구
+                                                                    handleCancelAcceptTask(selectedTask);
                                                                 }}
                                                                 onCreate={handleCreateAccount}
                                                             />
@@ -729,7 +729,7 @@ const BankerWorkSpace = () => {
                                                             <Deposit
                                                                 onCancel={() => {
                                                                     setSelectedWorkType(null);
-                                                                    handleCancelAcceptTask(selectedTask); // 원래 로직 복구
+                                                                    handleCancelAcceptTask(selectedTask);
                                                                 }}
                                                             />
                                                         )}
@@ -739,7 +739,7 @@ const BankerWorkSpace = () => {
                                                             <Withdraw
                                                                 onCancel={() => {
                                                                     setSelectedWorkType(null);
-                                                                    handleCancelAcceptTask(selectedTask); // 원래 로직 복구
+                                                                    handleCancelAcceptTask(selectedTask);
                                                                 }}
                                                             />
                                                         )}
@@ -749,7 +749,7 @@ const BankerWorkSpace = () => {
                                                             <Transfer
                                                                 onCancel={() => {
                                                                     setSelectedWorkType(null);
-                                                                    handleCancelAcceptTask(selectedTask); // 원래 로직 복구
+                                                                    handleCancelAcceptTask(selectedTask);
                                                                 }}
                                                             />
                                                         )}
@@ -773,7 +773,7 @@ const BankerWorkSpace = () => {
                                                             <Accounts
                                                                 onCancel={() => {
                                                                     setSelectedWorkType(null);
-                                                                    handleCancelAcceptTask(selectedTask); // 원래 로직 복구
+                                                                    handleCancelAcceptTask(selectedTask);
                                                                 }}
                                                             />
                                                         )}
@@ -785,7 +785,7 @@ const BankerWorkSpace = () => {
                                                             <LoanPayment
                                                                 onCancel={() => {
                                                                     setSelectedWorkType(null);
-                                                                    handleCancelAcceptTask(selectedTask); // 원래 로직 복구
+                                                                    handleCancelAcceptTask(selectedTask);
                                                                 }}
                                                                 />
                                                         )}
@@ -795,7 +795,7 @@ const BankerWorkSpace = () => {
                                                             <FinancialProduct
                                                                 onCancel={() => {
                                                                     setSelectedWorkType(null);
-                                                                    handleCancelAcceptTask(selectedTask); // 원래 로직 복구
+                                                                    handleCancelAcceptTask(selectedTask);
                                                                 }}
                                                             />
                                                         )}

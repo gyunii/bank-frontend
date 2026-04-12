@@ -118,17 +118,17 @@ label {
     /* 기존에 있던 background-color: #00a884; 는 꼭 지워주세요! */
 }
 
-/* 🌟 안쪽에 들어갈 작은 원 만들기 */
+
 .radioGroup input[type="radio"]:checked::after {
     content: "";
     position: absolute;
     top: 50%;
     left: 50%;
-    transform: translate(-50%, -50%); /* 정확히 정중앙으로 이동 */
-    width: 0.5rem;  /* 💡 여기서 안쪽 원의 크기를 조절하세요! (원하는 만큼 줄이거나 늘릴 수 있음) */
-    height: 0.5rem; /* width와 똑같이 맞춰주세요 */
-    background-color: #00a884; /* 안쪽 원의 색상 */
-    border-radius: 50%; /* 완전한 동그라미로 만들기 */
+    transform: translate(-50%, -50%);
+    width: 0.5rem;
+    height: 0.5rem;
+    background-color: #00a884;
+    border-radius: 50%;
 }
 
 .radioGroup input[type="radio"]:focus,
@@ -137,7 +137,7 @@ label {
     box-shadow: none !important;
     -webkit-tap-highlight-color: transparent;
 }
-/* 금리 안내 박스 */
+
 .infoBox {
     background-color: #48c79c;
     color: white;
@@ -148,7 +148,7 @@ label {
 }
 .accountsContainer {
     width: 100%;
-    /* 패딩을 살짝 줄이고, box-sizing을 추가해 밖으로 튀어나가는 것을 막습니다 */
+
     padding: 20px;
     background-color: #ffffff;
     border-radius: 8px;
@@ -156,7 +156,6 @@ label {
     font-family: 'Malgun Gothic', sans-serif;
 }
 
-/* 탭 스타일 */
 .tabContainer {
     display: flex;
     border-bottom: 2px solid #e0e0e0;
@@ -181,10 +180,8 @@ label {
     margin-bottom: -2px;
 }
 
-/* 그리드 레이아웃 (수정됨) */
 .formGrid {
     display: grid;
-    /* 콘텐츠 길이에 강제로 밀려나지 않도록 minmax(0, 1fr) 사용 */
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 15px; /* 간격 축소 */
     width: 100%;
@@ -201,7 +198,6 @@ label {
     grid-column: span 2;
 }
 
-/* 별칭 입력칸 (수정됨: 좁은 화면에서 깨짐 방지를 위해 일반 정렬로 통일) */
 .alignRight {
     align-items: flex-start;
 }
@@ -215,7 +211,6 @@ label {
     width: 100%;
 }
 
-/* 라벨 & 입력 필드 */
 label {
     font-size: 13px;
     color: #333;
@@ -229,7 +224,7 @@ label {
     border-radius: 6px;
     font-size: 13px;
     outline: none;
-    box-sizing: border-box; /* 패딩 줘도 요소 안 튀어나가게 고정 */
+    box-sizing: border-box;
 }
 
 .input:focus, .select:focus {
@@ -251,7 +246,7 @@ label {
     font-size: 12px;
     color: #555;
     cursor: pointer;
-    white-space: nowrap; /* 🌟 신규 가입 글자가 두 줄로 깨지는 것 방지 🌟 */
+    white-space: nowrap;
 }
 
 .radioGroup input[type="radio"] {
