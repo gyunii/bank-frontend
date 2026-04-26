@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import styles from './Withdraw.module.css';
+import { useModal } from '../../context/ModalContext';
 
-const Withdraw = ({ onCancel, taskId, selectedTask }) => {
+const Withdraw = ({ onCancel, taskId, selectedTask, onSuccess }) => {
+    const { openModal } = useModal();
     const [accounts, setAccounts] = useState([]); 
     const [isLoading, setIsLoading] = useState(true); 
     const [formData, setFormData] = useState({
@@ -11,7 +13,7 @@ const Withdraw = ({ onCancel, taskId, selectedTask }) => {
         amount: ''
     });
 
- 
+
     useEffect(() => {
         const fetchUserAccounts = async () => {
             const userId = selectedTask?.userId;
@@ -21,7 +23,6 @@ const Withdraw = ({ onCancel, taskId, selectedTask }) => {
                     const response = await fetch(`/api/account/user/${userId}`);
                     if (response.ok) {
                         const rawData = await response.json();
-                  
                         const data = Array.isArray(rawData) ? rawData : rawData.accounts || [];
                         setAccounts(data);
                         
@@ -51,17 +52,27 @@ const Withdraw = ({ onCancel, taskId, selectedTask }) => {
     };
 
     const handleWithdrawSubmit = async () => {
+      
         if (!formData.myAccount) {
-            alert("출금할 계좌를 선택하거나 입력해주세요.");
+            openModal({ title: '알림', message: '출금 계좌를 정확히 입력해주세요.' });
             return;
         }
         if (!formData.password) {
-            alert("비밀번호를 입력해주세요.");
+            openModal({ title: '알림', message: '비밀번호를 입력해주세요.' });
+            return;
+        }
+        if (formData.password !== formData.confirmPassword) {
+            openModal({ title: '알림', message: '비밀번호 확인이 일치하지 않습니다.' });
             return;
         }
 
         const numericAmount = parseInt(String(formData.amount).replace(/,/g, ''), 10);
+        if (!numericAmount || numericAmount <= 0) {
+            openModal({ title: '알림', message: '올바른 출금 금액을 입력해주세요.' });
+            return;
+        }
 
+        
         const queryParams = new URLSearchParams({
             accountNumber: formData.myAccount,
             accountPassword: formData.password,
@@ -77,14 +88,18 @@ const Withdraw = ({ onCancel, taskId, selectedTask }) => {
             });
 
             if (response.ok) {
-                alert("출금이 완료되었습니다!");
-                onCancel();
+                if (onSuccess) {
+                    await onSuccess();
+                }
+                openModal({ title: '출금 완료', message: '출금 처리가 완료되었습니다.' });
+                onCancel(); 
             } else {
-                const errorData = await response.json();
-                alert(`출금 실패: ${errorData.message || '정보를 다시 확인해주세요.'}`);
+                const errorData = await response.json().catch(() => ({}));
+                openModal({ title: '출금 실패', message: errorData.message || '정보를 다시 확인해주세요.' });
             }
         } catch (error) {
-            alert("서버 통신 오류가 발생했습니다.");
+            console.error("네트워크 에러:", error);
+            openModal({ title: '오류', message: '서버 통신 중 에러가 발생했습니다.' });
         }
     };
 
@@ -170,6 +185,7 @@ const Withdraw = ({ onCancel, taskId, selectedTask }) => {
                             value={formData.amount} 
                             onChange={handleChange} 
                             placeholder="0" 
+                            className={styles.inputField}
                         />
                         <span className={styles.unit}>원</span>
                     </div>

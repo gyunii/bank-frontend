@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styles from './BankerWorkSpace.module.css';
+import { useModal } from '../../context/ModalContext';
 import WorkSpaceBackground from '../../images/Banker/WorkSpaceBackground.png';
 import { useAuth } from '../../context/AuthContext';
 import AccountCreateForm from "../../components/Banker/AccountCreate.jsx";
@@ -46,6 +47,8 @@ const RECOMM_PRODUCTS = [
 ];
 
 const BankerWorkSpace = () => {
+    const { openModal } = useModal();
+    const [isWorking, setIsWorking] = useState(true);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedProduct, setSelectedProduct] = useState(null);
 
@@ -65,6 +68,7 @@ const BankerWorkSpace = () => {
     const [taskToToss, setTaskToToss] = useState(null); // 어떤 업무를 이관할지 저장
 
     const [selectedWorkType, setSelectedWorkType] = useState(null);
+    const [note, setNote] = useState("");
 
     // 계좌 유형의 초기값을 "CHECKING"으로 설정
     const [accountType, setAccountType] = useState("CHECKING");
@@ -609,7 +613,81 @@ const BankerWorkSpace = () => {
         return "60대";
     };
 
+    // 업무 기록 저장 함수 
+    const handlePostLog = async (idValue) => {
+      
+        console.log("🚀 로그 저장 시작! ID:", idValue, "내용:", note);
 
+        if (!idValue) {
+            console.error("❌ 에러: ID 값이 비어있습니다.");
+            return;
+        }
+
+        
+        const logParams = new URLSearchParams({
+            note: note,
+            taskId: idValue 
+        }).toString();
+
+        try {
+            const response = await fetch(`/api/task-processing-log/?${logParams}`, {
+                method: 'POST'
+            });
+            
+            if (response.ok) {
+                console.log("✅ DB 저장 성공! 테이블을 확인해보세요.");
+                setNote(""); 
+            } else {
+                console.error("❌ 서버 응답 에러:", response.status);
+            }
+        } catch (error) {
+            console.error("❌ 네트워크 에러:", error);
+        }
+    };
+
+    // 멤버 상태 변경 API 연결 함수
+    const handleStatusChange = async (e) => {
+        const selectedValue = e.target.value; 
+        const nextStatus = selectedValue === 'working';
+        setIsWorking(nextStatus);
+
+        try {
+            const response = await fetch(`/api/member/status?status=${nextStatus}`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' }
+            });
+
+            if (response.ok) {
+                openModal({
+                    title: '상태 변경 완료',
+                    message: `현재 업무 상태가 [${nextStatus ? '업무 중' : '자리 비움'}]으로 변경되었습니다.`,
+                    confirmText: '확인',
+                    cancelText: null,      
+                    onConfirm: () => {
+                        console.log("변경 확인 완료");
+                    }
+                });
+            } else {
+                setIsWorking(!nextStatus); 
+                openModal({
+                    title: '변경 실패',
+                    message: '서버 오류로 인해 상태 변경에 실패했습니다.',
+                    confirmText: '확인',
+                    cancelText: null,
+                    onConfirm: () => {}
+                });
+            }
+        } catch (error) {
+            setIsWorking(!nextStatus); 
+            openModal({
+                title: '오류',
+                message: '서버와 통신할 수 없습니다.',
+                confirmText: '확인',
+                cancelText: null,
+                onConfirm: () => {}
+            });
+        }
+    };
 
  return (
         <div className={styles.container}>
@@ -634,9 +712,11 @@ const BankerWorkSpace = () => {
 
                         <div className={styles.headerRightContainer}>
                             <div className={styles.headerRight}>
-                                <select className={styles.statusSelect}>
-                                    <option>업무 중</option>
-                                    <option>자리 비움</option>
+                                <select className={styles.statusSelect}
+                                value={isWorking ? 'working' : 'away'} 
+                                onChange={handleStatusChange}>
+                                    <option value="working">업무 중</option>
+                                    <option value="away">자리 비움</option>
                                 </select>
                                 <div className={styles.userInfo}>
                                     <span className={styles.userIcon}>👤</span>
@@ -818,6 +898,7 @@ const BankerWorkSpace = () => {
                                                         )}
 
                                                         {/*입금*/}
+                                                        
                                                         {selectedWorkType === "DEPOSIT" && (
                                                             <Deposit
                                                                 onCancel={() => {
@@ -826,6 +907,10 @@ const BankerWorkSpace = () => {
                                                                 }}
                                                             taskId={selectedTask?.id || selectedTask?.taskId || 0}
                                                             selectedTask={selectedTask}
+                                                            onSuccess={() => {
+                                                                const finalId = selectedTask?.id || selectedTask?.taskId || selectedTask?.task_id;
+                                                                handlePostLog(finalId);
+                                                            }}
                                                             />
                                                         )}
 
@@ -838,6 +923,10 @@ const BankerWorkSpace = () => {
                                                                 }}
                                                                 taskId={selectedTask?.id}
                                                                 selectedTask={selectedTask}
+                                                                onSuccess={() => {
+                                                                    const finalId = selectedTask?.id || selectedTask?.taskId || selectedTask;
+                                                                    handlePostLog(finalId);
+                                                                }}
                                                             />
                                                         )}
 
@@ -850,6 +939,10 @@ const BankerWorkSpace = () => {
                                                                 }}
                                                                 taskId={selectedTask?.id}
                                                                 selectedTask={selectedTask}
+                                                                onSuccess={() => {
+                                                                    const finalId = selectedTask?.id || selectedTask?.taskId || selectedTask;
+                                                                    handlePostLog(finalId);
+                                                                }}
                                                             />
                                                         )}
 
@@ -978,7 +1071,9 @@ const BankerWorkSpace = () => {
                                                                     </button>
                                                                 </div>
                                                                 <div className={styles.taskLog}>
-                                                                    <textarea placeholder="업무기록을 작성해주세요" className={styles.textArea} />
+                                                                    <textarea placeholder="업무기록을 작성해주세요" className={styles.textArea} 
+                                                                    value={note} 
+                                                                    onChange={(e) => setNote(e.target.value)} />
                                                                 </div>
                                                             </>
                                                         )}

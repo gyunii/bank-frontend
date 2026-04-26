@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import styles from './Transfer.module.css';
+import { useModal } from '../../context/ModalContext';
 
 const formatCurrency = (amount) => {
     return new Intl.NumberFormat('ko-KR').format(amount);
 };
 
-const Transfer = ({ onCancel, taskId, selectedTask }) => {
+const Transfer = ({ onCancel, taskId, selectedTask, onSuccess }) => {
+    const { openModal } = useModal();
     const [accounts, setAccounts] = useState([]); 
     const [isLoading, setIsLoading] = useState(true);
     
@@ -17,7 +19,6 @@ const Transfer = ({ onCancel, taskId, selectedTask }) => {
         description: '이체'      
     });
 
-  
     useEffect(() => {
         const fetchUserAccounts = async () => {
             const userId = selectedTask?.userId;
@@ -29,7 +30,6 @@ const Transfer = ({ onCancel, taskId, selectedTask }) => {
                         const data = Array.isArray(rawData) ? rawData : rawData.accounts || [];
                         setAccounts(data);
                         
-                       
                         if (data.length > 0) {
                             setFormData(prev => ({ 
                                 ...prev, 
@@ -54,6 +54,7 @@ const Transfer = ({ onCancel, taskId, selectedTask }) => {
         setFormData(prev => ({ ...prev, [name]: value }));
     };
 
+
     const handleAmountButtonClick = (value) => {
         const selectedAcc = accounts.find(acc => (acc.accountNumber || acc.accountNum) === formData.fromAccountNumber);
         const currentBalance = selectedAcc?.balance || 0;
@@ -67,11 +68,11 @@ const Transfer = ({ onCancel, taskId, selectedTask }) => {
 
     const handleTransferSubmit = async () => {
         if (!formData.fromAccountNumber || !formData.toAccountNumber || !formData.amount || !formData.accountPassword) {
-            alert("모든 필드를 정확히 입력해주세요.");
+            openModal({ title: '알림', message: '모든 필드를 정확히 입력해주세요.' }); 
             return;
         }
 
-  
+   
         const queryParams = new URLSearchParams({
             fromAccountNumber: formData.fromAccountNumber,
             accountPassword: formData.accountPassword,
@@ -88,14 +89,25 @@ const Transfer = ({ onCancel, taskId, selectedTask }) => {
             });
 
             if (response.ok) {
-                alert("이체가 완료되었습니다!");
+                if (onSuccess) {
+                    await onSuccess();
+                }
+                openModal({ 
+                    title: '이체 완료', 
+                    message: `이체 및 업무 로그 작성이 완료되었습니다!`,
+                    onConfirm: () => onCancel() 
+                });
                 onCancel();
             } else {
-                const errorData = await response.json();
-                alert(`이체 실패: ${errorData.message || '정보를 다시 확인해주세요.'}`);
+                const errorData = await response.json().catch(() => ({}));
+                openModal({ 
+                    title: '이체 실패', 
+                    message: errorData.message || '이체 정보를 다시 확인해주세요.' 
+                });
             }
         } catch (error) {
-            alert("서버 통신 오류가 발생했습니다.");
+            console.error("네트워크 에러:", error);
+            openModal({ title: '오류', message: '서버 통신 중 에러가 발생했습니다.' });
         }
     };
 
@@ -165,10 +177,10 @@ const Transfer = ({ onCancel, taskId, selectedTask }) => {
                     onChange={handleChange}
                 />
                 <div className={styles.amountButtons}>
-                    <button type="button" onClick={() => handleAmountButtonClick(10000)}>+1만</button>
-                    <button type="button" onClick={() => handleAmountButtonClick(50000)}>+5만</button>
-                    <button type="button" onClick={() => handleAmountButtonClick(100000)}>+10만</button>
-                    <button type="button" onClick={() => handleAmountButtonClick('full')}>전액</button>
+                    <button type="button" onClick={() => handleAmountButtonClick(10000)} className={styles.amtBtn}>+1만</button>
+                    <button type="button" onClick={() => handleAmountButtonClick(50000)} className={styles.amtBtn}>+5만</button>
+                    <button type="button" onClick={() => handleAmountButtonClick(100000)} className={styles.amtBtn}>+10만</button>
+                    <button type="button" onClick={() => handleAmountButtonClick('full')} className={styles.amtBtn}>전액</button>
                 </div>
             </div>
 

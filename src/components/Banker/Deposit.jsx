@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import styles from './Deposit.module.css';
+import { useModal } from '../../context/ModalContext';
 
-const Deposit = ({ onCancel, taskId, selectedTask }) => {
+const Deposit = ({ onCancel, taskId, selectedTask, onSuccess }) => {
+    const { openModal } = useModal();
     const [accounts, setAccounts] = useState([]); 
-    const [isLoading, setIsLoading] = useState(true); 
+    const [isLoading, setIsLoading] = useState(true);
     const [formData, setFormData] = useState({
         myAccount: '', 
         password: '',
@@ -12,40 +14,34 @@ const Deposit = ({ onCancel, taskId, selectedTask }) => {
         description: '입금'
     });
 
-   
+    
     useEffect(() => {
         const fetchUserAccounts = async () => {
             const userId = selectedTask?.userId; 
             
             if (userId) {
-                console.log(`userId ${userId}의 계좌 목록 조회 시작...`);
                 try {
-                   
                     const response = await fetch(`/api/account/user/${userId}`);
                     if (response.ok) {
                         const rawData = await response.json();
+                        
                         const data = Array.isArray(rawData) ? rawData : rawData.accounts || [];
-                        console.log("조회된 계좌 데이터:", data);
                         setAccounts(data);
                         
-                       
                         if (data.length > 0) {
                             setFormData(prev => ({ 
                                 ...prev, 
-                              
                                 myAccount: data[0].accountNumber || data[0].accountNum 
                             }));
                         }
-                    } else {
-                        console.error("계좌 조회 API 호출 실패:", response.status);
                     }
                 } catch (error) {
-                    console.error("계좌 목록 로드 중 에러:", error);
+                    console.error("입금 계좌 목록 로드 에러:", error);
                 } finally {
-                    setIsLoading(false); 
+                    setIsLoading(false);
                 }
             } else {
-                setIsLoading(false); 
+                setIsLoading(false);
             }
         };
 
@@ -61,7 +57,15 @@ const Deposit = ({ onCancel, taskId, selectedTask }) => {
         const numericAmount = parseInt(String(formData.amount).replace(/,/g, ''), 10);
 
         if (!formData.myAccount) {
-            alert("입금할 계좌를 선택해주세요.");
+            openModal({ title: '알림', message: '입금 계좌를 정확히 입력해주세요.' });
+            return;
+        }
+        if (!numericAmount || numericAmount <= 0) {
+            openModal({ title: '알림', message: '올바른 입금 금액을 입력해주세요.' });
+            return;
+        }
+        if (!formData.password) {
+            openModal({ title: '알림', message: '계좌 비밀번호를 입력해주세요.' });
             return;
         }
 
@@ -75,44 +79,63 @@ const Deposit = ({ onCancel, taskId, selectedTask }) => {
         try {
             const response = await fetch(`/api/transaction/deposit?${queryParams}`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' }
+                headers: {
+                    'Content-Type': 'application/json'
+                }
             });
 
             if (response.ok) {
-                alert("입금이 완료되었습니다!");
-                onCancel();
+                if (onSuccess) {
+                    await onSuccess();
+                }
+                
+                openModal({ 
+                    title: '입금 완료', 
+                    message: `입금 및 업무 로그 작성이 완료되었습니다!`,
+                    onConfirm: () => onCancel() 
+                });
+                onCancel(); 
             } else {
-                alert("입금 실패: 정보를 다시 확인해주세요.");
+                const errorText = await response.text(); 
+                console.error("서버 에러 응답:", errorText);
+                openModal({ 
+                    title: '입금 실패', 
+                    message: errorData.message || '정보를 다시 확인해주세요.' 
+                });
             }
         } catch (error) {
-            alert("서버 통신 오류가 발생했습니다.");
+            console.error("네트워크 에러:", error);
+            openModal({ title: '오류', message: '서버 통신 중 에러가 발생했습니다.' });
         }
     };
 
     return (
         <div className={styles.container}>
             <header className={styles.header}>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <rect x="2" y="5" width="20" height="14" rx="2" />
+                    <line x1="2" y1="10" x2="22" y2="10" />
+                </svg>
                 <h1 className={styles.headerTitle}>입금 업무</h1>
             </header>
 
             <div className={styles.formContainer}>
-                {/* 1. 계좌 선택 섹션 (조회된 계좌 리스트 출력) */}
+                {/* 1. 입금 계좌 선택 섹션 */}
                 <div className={styles.section}>
                     <div className={styles.labelRow}>
                         <span className={styles.centerLabel}>입금 계좌 선택</span>
                     </div>
                     <div className={styles.inputRow}>
                         <div className={styles.customSelectFull}>
-                         
                             {isLoading ? (
-                                <input type="text" placeholder="계좌 정보를 불러오는 중입니다..." readOnly className={styles.inputField} />
+                                <input type="text" placeholder="계좌 정보를 조회 중입니다..." readOnly className={styles.inputField} />
                             ) : accounts.length > 0 ? (
-                            
                                 <select 
                                     name="myAccount" 
                                     value={formData.myAccount} 
                                     onChange={handleChange}
                                     className={styles.selectField}
+                                    style={{ width: '100%', padding: '10px', borderRadius: '4px', border: '1px solid #ddd' }}
                                 >
                                     {accounts.map((acc, index) => (
                                         <option key={index} value={acc.accountNumber || acc.accountNum}>
@@ -121,13 +144,13 @@ const Deposit = ({ onCancel, taskId, selectedTask }) => {
                                     ))}
                                 </select>
                             ) : (
-                            
                                 <input 
                                     name="myAccount" 
                                     type="text" 
-                                    placeholder="⚠️ 등록된 계좌가 없습니다. 직접 입력하세요." 
+                                    placeholder="직접 계좌번호를 입력하세요" 
                                     value={formData.myAccount} 
                                     onChange={handleChange} 
+                                    className={styles.inputField} 
                                 />
                             )}
                         </div>
@@ -139,11 +162,29 @@ const Deposit = ({ onCancel, taskId, selectedTask }) => {
                     <div className={styles.gridTwo}>
                         <div className={styles.inputGroup}>
                             <label className={styles.centerLabel}>비밀번호</label>
-                            <input name="password" type="password" value={formData.password} onChange={handleChange} placeholder="●●●●" />
+                            <div className={styles.inputFieldBox}>
+                                <input 
+                                    name="password" 
+                                    type="password" 
+                                    placeholder="●●●●"
+                                    value={formData.password} 
+                                    onChange={handleChange} 
+                                    className={styles.inputField}
+                                />
+                            </div>
                         </div>
                         <div className={styles.inputGroup}>
                             <label className={styles.centerLabel}>비밀번호 확인</label>
-                            <input name="confirmPassword" type="password" value={formData.confirmPassword} onChange={handleChange} placeholder="●●●●" />
+                            <div className={styles.inputFieldBox}>
+                                <input 
+                                    name="confirmPassword" 
+                                    type="password" 
+                                    placeholder="●●●●"
+                                    value={formData.confirmPassword} 
+                                    onChange={handleChange} 
+                                    className={styles.inputField}
+                                />
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -152,7 +193,14 @@ const Deposit = ({ onCancel, taskId, selectedTask }) => {
                 <div className={styles.section}>
                     <div className={styles.labelRow}><span className={styles.centerLabel}>입금 금액</span></div>
                     <div className={styles.amountFieldBox}>
-                        <input name="amount" type="text" value={formData.amount} onChange={handleChange} placeholder="0" />
+                        <input 
+                            name="amount" 
+                            type="text" 
+                            placeholder="0"
+                            value={formData.amount} 
+                            onChange={handleChange} 
+                            className={styles.inputField}
+                        />
                         <span className={styles.unit}>원</span>
                     </div>
                 </div>
