@@ -106,6 +106,7 @@ const Withdraw = ({ onCancel, taskId, selectedTask, onSuccess }) => {
     return (
         <div className={styles.container}>
             <header className={styles.header}>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="5" width="20" height="14" rx="2" /><line x1="2" y1="10" x2="22" y2="10" /></svg>
                 <h1 className={styles.headerTitle}>출금 업무</h1>
             </header>
 
@@ -150,8 +151,10 @@ const Withdraw = ({ onCancel, taskId, selectedTask, onSuccess }) => {
                 {/* 2. 비밀번호 섹션 */}
                 <div className={styles.section}>
                     <div className={styles.gridTwo}>
+
                         <div className={styles.inputGroup}>
                             <label className={styles.centerLabel}>비밀번호</label>
+                            <div className={styles.customSelectFull}>
                             <input 
                                 name="password" 
                                 type="password" 
@@ -160,9 +163,11 @@ const Withdraw = ({ onCancel, taskId, selectedTask, onSuccess }) => {
                                 placeholder="●●●●"
                                 className={styles.inputField}
                             />
+                            </div>
                         </div>
                         <div className={styles.inputGroup}>
                             <label className={styles.centerLabel}>비밀번호 확인</label>
+                            <div className={styles.customSelectFull}>
                             <input 
                                 name="confirmPassword" 
                                 type="password" 
@@ -171,6 +176,7 @@ const Withdraw = ({ onCancel, taskId, selectedTask, onSuccess }) => {
                                 placeholder="●●●●"
                                 className={styles.inputField}
                             />
+                            </div>
                         </div>
                     </div>
                 </div>

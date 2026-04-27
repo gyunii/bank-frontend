@@ -615,15 +615,14 @@ const BankerWorkSpace = () => {
 
     // 업무 기록 저장 함수 
     const handlePostLog = async (idValue) => {
-      
-        console.log("🚀 로그 저장 시작! ID:", idValue, "내용:", note);
+        if (!note.trim()) {
+            return;
+        }
 
         if (!idValue) {
             console.error("❌ 에러: ID 값이 비어있습니다.");
             return;
         }
-
-        
         const logParams = new URLSearchParams({
             note: note,
             taskId: idValue 
@@ -790,8 +789,8 @@ const BankerWorkSpace = () => {
                                                             className={styles.btnToss}
                                                             onClick={(e) => {
                                                                 e.stopPropagation();
-                                                                setTaskToToss(task);
-                                                                setIsTossModalOpen(true);
+                                                                setTaskToToss(task); // 이관할 태스크 저장
+                                                                setIsTossModalOpen(true); // 모달 열기
                                                             }}
                                                         >
                                                             창구이관

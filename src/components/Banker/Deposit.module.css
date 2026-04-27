@@ -28,11 +28,11 @@
 
 .customSelectMain { flex: 7; justify-content: space-between; }
 .aliasInputBox { flex: 3; }
-.bankSelect { width: 120px; justify-content: space-between; }
-.customSelectFull { flex: 1; justify-content: space-between; }
 .amountFieldBox { justify-content: flex-end; gap: 10px; }
+.customSelectFull { flex: 1; justify-content: space-between; }
 
-/* 🔥 핵심: 내부 실제 입력 태그들 스타일 초기화 */
+
+/* 내부 입력 태그 스타일 죽이기 (기능만 남기기) */
 .section input, .section select {
     border: none !important;
     background: transparent !important;
@@ -43,9 +43,10 @@
     color: #333;
     padding: 0;
     margin: 0;
-    appearance: none; /* select 화살표 제거 */
+    appearance: none;
     -webkit-appearance: none;
 }
+
 
 .aliasInputBox input, .amountFieldBox input {
     text-align: right; /* 별칭과 금액은 우측 정렬 */

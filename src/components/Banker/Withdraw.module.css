@@ -61,8 +61,8 @@
 }
 
 /* 껍데기 박스 디자인 (민트 테두리) */
-.customSelectMain, .aliasInputBox, .inputFieldBox, .amountFieldBox {
-    border: 1.5px solid #6ED3B9;
+.customSelectMain, .customSelectFull,.aliasInputBox, .inputFieldBox, .amountFieldBox {
+    border: 1.5px solid #6ED3B9 ;
     border-radius: 12px;
     padding: 0 15px;
     background: #fff;
@@ -76,6 +76,8 @@
 .customSelectMain { flex: 7; justify-content: space-between; }
 .aliasInputBox { flex: 3; }
 .amountFieldBox { justify-content: flex-end; gap: 10px; }
+.customSelectFull { flex: 1; justify-content: space-between; }
+
 
 /* 내부 입력 태그 스타일 죽이기 (기능만 남기기) */
 .section input, .section select {
